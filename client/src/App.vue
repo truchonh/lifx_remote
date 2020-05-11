@@ -1,0 +1,51 @@
+<template>
+    <v-app>
+        <div>
+            <v-app-bar dense>
+                <v-toolbar-title>Lumière Lifx</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon @click="refresh">
+                    <v-icon>{{ mdiRefresh }}</v-icon>
+                </v-btn>
+            </v-app-bar>
+        </div>
+
+        <v-content>
+            <RisingSunConfig />
+            <v-divider />
+            <QuickActions ref="quickActions"/>
+        </v-content>
+    </v-app>
+</template>
+
+<script>
+    import RisingSunConfig from './components/RisingSunConfig'
+    import QuickActions from './components/QuickActions'
+    import { mdiRefresh } from '@mdi/js'
+
+    export default {
+        name: 'App',
+        components: {
+            RisingSunConfig,
+            QuickActions
+        },
+
+        data() {
+            return {
+                mdiRefresh,
+            }
+        },
+
+        methods: {
+            refresh() {
+                this.$refs.quickActions.fetchConfig()
+            }
+        },
+    };
+</script>
+
+<style lang="scss">
+body {
+    overflow: hidden;
+}
+</style>
