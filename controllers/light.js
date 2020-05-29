@@ -1,20 +1,34 @@
+const _ = require('lodash')
 const Lifx = require('node-lifx-lan')
+const Cron = require('cron').CronJob
 
-let currentConfig = null;
+let currentConfig = null
+let wakeOpSequenceCron = null
+
+let _device = null
 
 module.exports = {
+    async _getDevice() {
+        if (!_device) {
+            const devices = await Lifx.discover()
+            _device = devices[0]
+        }
+        return _device
+    },
+
     /**
      * @returns {Promise<{ power: boolean, color: { brightness: number, kelvin: number } }>}
      */
     async getState() {
-        const devices = await Lifx.discover()
+        const device = await this._getDevice()
 
-        if (devices.length < 1) {
-            currentConfig = null;
+        if (!device) {
+            currentConfig = null
         } else {
-            const state = await devices[0].getLightState()
+            const state = await device.getLightState()
             currentConfig = {
-                power, color: { brightness, kelvin }
+                power,
+                color: { brightness, kelvin }
             } = state
         }
 
@@ -31,7 +45,7 @@ module.exports = {
      */
     async setState(config) {
         const params = {
-            duration: 500,
+            duration: config.power ? 400 : 1200,
             color: {
                 red: 1,
                 green: 1,
@@ -39,12 +53,99 @@ module.exports = {
                 ...config.color
             }
         }
-        const devices = await Lifx.discover()
+        const device = await this._getDevice()
 
         if (config.power) {
-            (devices.length > 0) && await devices[0].turnOn(params)
+            device && await device.turnOn(params)
         } else {
-            (devices.length > 0) && await devices[0].turnOff(params)
+            device && await device.turnOff(params)
         }
+
+        currentConfig = {
+            power: config.power,
+            color: {
+                ...config.color
+            }
+        }
+    },
+
+    async startWakeUpSequence(sequence) {
+        let device = await this._getDevice()
+        await device.turnOn({
+            duration: 0,
+            color: {
+                red: 1,
+                green: 1,
+                blue: 1,
+                brightness: 0,
+                kelvin: 1500
+            }
+        })
+
+        wakeOpSequenceCron = new Cron('* * * * *', async () => {
+            if (this._isSequenceDone(sequence)) {
+                wakeOpSequenceCron.stop()
+                wakeOpSequenceCron = null
+            }
+
+            device = await this._getDevice()
+
+            let config = this._calculateLightValue(sequence)
+            await device.setColor({
+                duration: 60 * 1000,
+                color: {
+                    red: 1,
+                    green: 1,
+                    blue: 1,
+                    ...config
+                }
+            })
+        })
+        wakeOpSequenceCron.start()
+    },
+
+    _calculateLightValue(sequence) {
+        const now = new Date()
+        const nowMinutes = (now.getHours() * 60) + now.getMinutes()
+
+        let sequenceStartMinutes = 0
+        const sequenceStart = sequence.find(_item => {
+            const timePart = _item.time.split(':').map(_part => parseInt(_part))
+            sequenceStartMinutes = (timePart[0] * 60) + timePart[1]
+            return sequenceStartMinutes <= nowMinutes
+        })
+        let sequenceEndMinutes = 0
+        const sequenceEnd = sequence.find(_item => {
+            const timePart = _item.time.split(':').map(_part => parseInt(_part))
+            sequenceEndMinutes = (timePart[0] * 60) + timePart[1]
+            return sequenceEndMinutes >= nowMinutes
+        })
+
+        if (!sequenceStart || !sequenceEnd) {
+            return {
+                brightness: sequenceStart ? sequenceStart.brightness : sequenceEnd.brightness,
+                kelvin: sequenceStart ? sequenceStart.kelvin : sequenceEnd.kelvin
+            }
+        }
+
+        const periodLength = sequenceEndMinutes - sequenceStartMinutes
+        const periodRatio = periodLength === 0 ? 1 : (nowMinutes - sequenceStartMinutes) / periodLength
+        const calculatedBrightness = ((sequenceEnd.brightness - sequenceStart.brightness) * periodRatio) + sequenceStart.brightness
+        const calculatedKelvin = ((sequenceEnd.kelvin - sequenceStart.kelvin) * periodRatio) + sequenceStart.kelvin
+
+        return {
+            brightness: calculatedBrightness,
+            kelvin: calculatedKelvin
+        }
+    },
+
+    _isSequenceDone(sequence) {
+        const now = new Date()
+        const nowMinutes = (now.getHours() * 60) + now.getMinutes()
+
+        const timePart = _.last(sequence).time.split(':').map(_part => parseInt(_part))
+        const sequenceMinutes = (timePart[0] * 60) + timePart[1]
+
+        return nowMinutes >= sequenceMinutes
     }
 };
