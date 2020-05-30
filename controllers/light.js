@@ -51,6 +51,7 @@ module.exports = {
         const params = {
             duration: config.power ? 400 : 1200,
             color: {
+                red:1, green: 1, blue: 1,
                 ...config.color
             }
         }
@@ -75,6 +76,7 @@ module.exports = {
         await device.turnOn({
             duration: 0,
             color: {
+                red:1, green: 1, blue: 1,
                 brightness: 0,
                 kelvin: 1500
             }
@@ -95,6 +97,7 @@ module.exports = {
             await device.setColor({
                 duration: 9.5 * 1000,
                 color: {
+                    red:1, green: 1, blue: 1,
                     ...config
                 }
             })
