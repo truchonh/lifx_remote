@@ -13,34 +13,33 @@ const HTTP_PORT = 9999
 
 const defaults = {
     ALARM_CONFIG: {
-        cron: '0 8 * * *',
+        cron: '0 10 * * *',
         sequence: [
             {
-                time: '8:00',
-                brightness: 0,
+                time: '10:00',
+                brightness: 0.01,
                 kelvin: 1500
             },
             {
-                time: '8:05',
-                brightness: 0.15,
-                kelvin: 2700
+                time: '10:03',
+                brightness: 0.10,
+                kelvin: 2500
             },
             {
-                time: '8:20',
+                time: '10:20',
                 brightness: 0.3,
-                kelvin: 3000
+                kelvin: 3100
             },
             {
-                time: '8:30',
-                brightness: 1,
-                kelvin: 4000
+                time: '10:25',
+                brightness: 0.65,
+                kelvin: 3400
             }
         ]
     }
 }
 
 let alarmCron = null
-
 
 
 class api {
@@ -60,12 +59,16 @@ class api {
                 lightController.startWakeUpSequence(alarmConfig.sequence)
             })
             alarmCron.start()
+            console.log('started alarm cron')
         }
-
 
 
         // toggle the light on and off without changing the configuration
         app.get('/api/toggle', async (req, res) => {
+            if (lightController.isWakeUpSequenceRunning()) {
+                return res.status(401).end()
+            }
+
             const state = await lightController.getState()
 
             if (state) {
@@ -73,20 +76,21 @@ class api {
                 await lightController.setState(state)
             }
 
-            res.send({
-                state
-            })
+            res.send({ state })
             console.log(state)
         })
 
         app.get('/api/state', async (req, res) => {
-            console.log('getState')
             const state = await lightController.getState()
             res.send({
                 state
             })
         })
         app.put('/api/state', async (req, res) => {
+            if (lightController.isWakeUpSequenceRunning()) {
+                return res.status(401).end()
+            }
+
             console.log(req.body)
             await lightController.setState(req.body)
             res.send()
@@ -115,8 +119,6 @@ class api {
                 res.status(400).send({ message: 'Invalid alarm config.' })
             }
         })
-
-
 
         await app.listen(HTTP_PORT)
     }
