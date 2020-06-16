@@ -4,11 +4,20 @@
   "description": "LIFX local client",
   "main": "server.js",
   "license": "MIT",
+  "scripts": {
+    "test": "mocha \"test/**/*Test.js\" --timeout 30000"
+  },
   "dependencies": {
     "body-parser": "^1.19.0",
     "cron": "^1.8.2",
     "express": "^4.17.1",
     "lodash": "^4.17.15",
     "node-lifx-lan": "^0.4.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "mock-require": "^3.0.3",
+    "superagent": "^5.2.2"
   }
 }
