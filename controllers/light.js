@@ -35,6 +35,10 @@ module.exports = {
         return currentConfig
     },
 
+    isWakeUpSequenceRunning() {
+        return !!wakeOpSequenceCron
+    },
+
     /**
      * @param {object} config
      * @param {boolean} config.power
@@ -47,9 +51,7 @@ module.exports = {
         const params = {
             duration: config.power ? 400 : 1200,
             color: {
-                red: 1,
-                green: 1,
-                blue: 1,
+                red:1, green: 1, blue: 1,
                 ...config.color
             }
         }
@@ -74,15 +76,16 @@ module.exports = {
         await device.turnOn({
             duration: 0,
             color: {
-                red: 1,
-                green: 1,
-                blue: 1,
+                red:1, green: 1, blue: 1,
                 brightness: 0,
                 kelvin: 1500
             }
         })
 
-        wakeOpSequenceCron = new Cron('* * * * *', async () => {
+        // stop running alarm to prevent collision issues
+        wakeOpSequenceCron && wakeOpSequenceCron.stop()
+
+        wakeOpSequenceCron = new Cron('*/10 * * * * *', async () => {
             if (this._isSequenceDone(sequence)) {
                 wakeOpSequenceCron.stop()
                 wakeOpSequenceCron = null
@@ -92,11 +95,9 @@ module.exports = {
 
             let config = this._calculateLightValue(sequence)
             await device.setColor({
-                duration: 60 * 1000,
+                duration: 9.5 * 1000,
                 color: {
-                    red: 1,
-                    green: 1,
-                    blue: 1,
+                    red:1, green: 1, blue: 1,
                     ...config
                 }
             })
@@ -106,25 +107,32 @@ module.exports = {
 
     _calculateLightValue(sequence) {
         const now = new Date()
-        const nowMinutes = (now.getHours() * 60) + now.getMinutes()
+        const nowMinutes = (now.getHours() * 60) + now.getMinutes() + (now.getSeconds() / 60)
 
         let sequenceStartMinutes = 0
-        const sequenceStart = sequence.find(_item => {
+        // if null, then now is before the first sequence item
+        const sequenceStart = _.findLast(sequence, _item => {
             const timePart = _item.time.split(':').map(_part => parseInt(_part))
             sequenceStartMinutes = (timePart[0] * 60) + timePart[1]
             return sequenceStartMinutes <= nowMinutes
         })
         let sequenceEndMinutes = 0
-        const sequenceEnd = sequence.find(_item => {
+        // if null, then now is after the last sequence item
+        const sequenceEnd = _.find(sequence, _item => {
             const timePart = _item.time.split(':').map(_part => parseInt(_part))
             sequenceEndMinutes = (timePart[0] * 60) + timePart[1]
-            return sequenceEndMinutes >= nowMinutes
+            return nowMinutes <= sequenceEndMinutes
         })
 
-        if (!sequenceStart || !sequenceEnd) {
+        if (!sequenceStart) {
             return {
-                brightness: sequenceStart ? sequenceStart.brightness : sequenceEnd.brightness,
-                kelvin: sequenceStart ? sequenceStart.kelvin : sequenceEnd.kelvin
+                brightness: _.first(sequence).brightness,
+                kelvin: Math.round(_.first(sequence).kelvin)
+            }
+        } else if (!sequenceEnd) {
+            return {
+                brightness: _.last(sequence).brightness,
+                kelvin: Math.round(_.last(sequence).kelvin)
             }
         }
 
@@ -135,7 +143,7 @@ module.exports = {
 
         return {
             brightness: calculatedBrightness,
-            kelvin: calculatedKelvin
+            kelvin: Math.round(calculatedKelvin)
         }
     },
 
