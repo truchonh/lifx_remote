@@ -9,7 +9,7 @@ const Cron = require('cron').CronJob
 const _ = require('lodash')
 const lightController = require('./controllers/light')
 
-const HTTP_PORT = 29999
+const HTTP_PORT = 9999
 
 const defaults = {
     ALARM_CONFIG: {
