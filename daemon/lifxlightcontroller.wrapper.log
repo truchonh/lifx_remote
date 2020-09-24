@@ -1,0 +1,2 @@
+2020-09-12 01:23:09 - Starting C:\Program Files\nodejs\node.exe  --harmony D:\lifx_remote\node_modules\node-windows\lib\wrapper.js --file D:\lifx_remote\server.js --scriptoptions= --log "LIFX light controller wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2020-09-12 01:23:09 - Started 11620

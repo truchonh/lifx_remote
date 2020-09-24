@@ -13,7 +13,8 @@
     "cron": "^1.8.2",
     "express": "^4.17.1",
     "lodash": "^4.17.15",
-    "node-lifx-lan": "^0.4.1"
+    "node-lifx-lan": "^0.4.2",
+    "node-windows": "^1.0.0-beta.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
