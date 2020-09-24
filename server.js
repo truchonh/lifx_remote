@@ -9,29 +9,29 @@ const Cron = require('cron').CronJob
 const _ = require('lodash')
 const lightController = require('./controllers/light')
 
-const HTTP_PORT = 9999
+const HTTP_PORT = 29999
 
 const defaults = {
     ALARM_CONFIG: {
-        cron: '0 10 * * *',
+        cron: '15 8 * * *',
         sequence: [
             {
-                time: '10:00',
+                time: '8:15',
                 brightness: 0.01,
                 kelvin: 1500
             },
             {
-                time: '10:03',
+                time: '8:18',
                 brightness: 0.10,
                 kelvin: 2500
             },
             {
-                time: '10:20',
+                time: '8:26',
                 brightness: 0.3,
                 kelvin: 3100
             },
             {
-                time: '10:25',
+                time: '8:30',
                 brightness: 0.65,
                 kelvin: 3400
             }
@@ -59,7 +59,7 @@ class api {
                 lightController.startWakeUpSequence(alarmConfig.sequence)
             })
             alarmCron.start()
-            console.log('started alarm cron')
+            console.log('started the alarm cron: \n'+ JSON.stringify(alarmConfig.sequence, null, 4))
         }
 
 
