@@ -13,8 +13,58 @@ export default {
 
     async setState(config) {
         try {
-            const res = await superagent('PUT', 'http://192.168.0.21:9999/api/state')
-                .send(config)
+            const res = await superagent('PUT', 'http://192.168.0.21:9999/api/state').send(config)
+            return new ApiResult(res)
+        } catch (err) {
+            return this._handleError(err)
+        }
+    },
+
+    async updateAlarm(time, days) {
+        try {
+            let hour = parseInt(time.split(':').shift())
+            let minutes = parseInt(time.split(':').pop())
+            const date = new Date()
+            date.setHours(hour)
+            date.setMinutes(minutes - 30)
+
+            const config = {
+                cron: `${date.getMinutes()} ${date.getHours()} * * ${days.join(',')}`,
+                sequence: [
+                    {
+                        time: `${date.getHours()}:${date.getMinutes()}`,
+                        brightness: 0.01,
+                        kelvin: 1500
+                    }
+                ]
+            }
+
+            date.setMinutes(date.getMinutes() + 3)
+            config.sequence.push({
+                time: `${date.getHours()}:${date.getMinutes()}`,
+                brightness: 0.10,
+                kelvin: 2500
+            });
+            date.setMinutes(date.getMinutes() + 12)
+            config.sequence.push({
+                time: `${date.getHours()}:${date.getMinutes()}`,
+                brightness: 0.3,
+                kelvin: 3100
+            });
+            date.setMinutes(date.getMinutes() + 25)
+            config.sequence.push({
+                time: `${date.getHours()}:${date.getMinutes()}`,
+                brightness: 0.3,
+                kelvin: 3400
+            });
+            date.setMinutes(date.getMinutes() + 5)
+            config.sequence.push({
+                time: `${date.getHours()}:${date.getMinutes()}`,
+                brightness: 0.8,
+                kelvin: 4000
+            });
+
+            const res = await superagent('PUT', 'http://192.168.0.21:9999/api/alarm').send(config)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)

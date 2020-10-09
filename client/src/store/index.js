@@ -23,6 +23,14 @@ export default new Vuex.Store({
             if (!result.isSuccess) {
                 // pop the snackbar
             }
+        },
+
+        async updateAlarm({ commit }, { time, days }) {
+            const result = await lightApi.updateAlarm(time, days)
+            if (!result.isSuccess) {
+                // pop the snackbar
+                console.log(result);
+            }
         }
     }
 })
