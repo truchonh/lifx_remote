@@ -104,6 +104,8 @@ class api {
             if (this._validateAlarmConfig(config)) {
 
                 await this._setAlarmConfig(config)
+                console.log('New alarm config: ');
+                console.log(config);
 
                 if (alarmCron) {
                     alarmCron.stop()
@@ -133,13 +135,13 @@ class api {
         } else if (
             config.sequence.some(_item => {
                 if (typeof _item.time !== 'string') {
-                    return false
+                    return true
                 } else if (typeof _item.brightness !== 'number') {
-                    return false
+                    return true
                 } else if (typeof _item.kelvin !== 'number') {
-                    return false
+                    return true
                 }
-                return true
+                return false
             })
         ) {
             return false
