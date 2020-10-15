@@ -1,6 +1,7 @@
 const _ = require('lodash')
 const Lifx = require('node-lifx-lan')
 const Cron = require('cron').CronJob
+const logger = require('../utils/simpleLogger');
 
 let currentConfig = null
 let wakeUpSequenceCron = null
@@ -72,20 +73,25 @@ module.exports = {
     },
 
     async startWakeUpSequence(sequence) {
-        console.log(`Starting the alarm sequence !`)
+        logger.log(`Starting the alarm sequence !`)
 
-        let device = await this._getDevice()
-        await device.turnOn({
-            duration: 0,
-            color: {
-                red:1, green: 1, blue: 1,
-                brightness: 0,
-                kelvin: 1500
-            }
-        })
+        let device;
+        try {
+            device = await this._getDevice()
+            await device.turnOn({
+                duration: 0,
+                color: {
+                    red:1, green: 1, blue: 1,
+                    brightness: 0,
+                    kelvin: 1500
+                }
+            })
+        } catch (err) {
+            logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
+            this._stopWakeSequence()
+        }
 
-        // stop running alarm to prevent collision issues
-        wakeUpSequenceCron && wakeUpSequenceCron.stop()
+        this._stopWakeSequence()
 
         wakeUpSequenceCron = new Cron('*/10 * * * * *', async () => {
             if (this._isSequenceDone(sequence)) {
@@ -105,6 +111,11 @@ module.exports = {
             })
         })
         wakeUpSequenceCron.start()
+    },
+
+    _stopWakeSequence() {
+        wakeUpSequenceCron && wakeUpSequenceCron.stop()
+        wakeUpSequenceCron = null
     },
 
     _calculateLightValue(sequence) {

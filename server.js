@@ -8,6 +8,7 @@ const fs_writeFile = util.promisify(fs.writeFile)
 const Cron = require('cron').CronJob
 const _ = require('lodash')
 const lightController = require('./controllers/light')
+const logger = require('./utils/simpleLogger');
 
 const HTTP_PORT = 9999
 
@@ -59,7 +60,7 @@ class api {
                 lightController.startWakeUpSequence(alarmConfig.sequence)
             })
             alarmCron.start()
-            console.log('started the alarm cron: \n'+ JSON.stringify(alarmConfig.sequence, null, 4))
+            logger.log('started the alarm cron: \n'+ JSON.stringify(alarmConfig.sequence, null, 4))
         }
 
         // toggle the light on and off without changing the configuration
@@ -76,7 +77,7 @@ class api {
             }
 
             res.send({ state })
-            console.log(state)
+            logger.log(JSON.stringify(state, null, 4))
         })
 
         app.get('/api/state', async (req, res) => {
@@ -90,7 +91,7 @@ class api {
                 return res.status(401).end()
             }
 
-            console.log(req.body)
+            logger.log(JSON.stringify(req.body, null, 4))
             await lightController.setState(req.body)
             res.send()
         })
@@ -104,8 +105,8 @@ class api {
             if (!validationError) {
 
                 await this._setAlarmConfig(config)
-                console.log('New alarm config: ');
-                console.log(config);
+                logger.log('New alarm config: ');
+                logger.log(JSON.stringify(config, null, 4));
 
                 if (alarmCron) {
                     alarmCron.stop()
@@ -118,14 +119,13 @@ class api {
                 res.send()
 
             } else {
-                console.log('Invalid alarm config: '+ validationError);
+                logger.log('Invalid alarm config: '+ validationError);
                 res.status(400).send({ message: 'Invalid alarm config: '+ validationError })
             }
         })
 
         await app.listen(HTTP_PORT)
     }
-
     static _validateAlarmConfig(config) {
         if (typeof config.desiredWakeTime !== 'string') {
             return 'Desired wake time missing'
@@ -171,4 +171,6 @@ class api {
     }
 }
 
-api.start().catch(console.error)
+api.start().catch((err) => {
+    logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
+})
