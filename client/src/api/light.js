@@ -20,6 +20,15 @@ export default {
         }
     },
 
+    async getAlarm() {
+        try {
+            const res = await superagent('GET', 'http://192.168.0.21:9999/api/alarm')
+            return new ApiResult(res)
+        } catch (err) {
+            return this._handleError(err)
+        }
+    },
+
     async updateAlarm(time, days) {
         try {
             let hour = parseInt(time.split(':').shift())
@@ -29,6 +38,8 @@ export default {
             date.setMinutes(minutes - 30)
 
             const config = {
+                desiredWakeTime: time,
+                alarmDays: days,
                 cron: `${date.getMinutes()} ${date.getHours()} * * ${days.join(',')}`,
                 sequence: [
                     {

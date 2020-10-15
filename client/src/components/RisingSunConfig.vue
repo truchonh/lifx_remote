@@ -9,7 +9,7 @@
       <v-row justify="center">
         <v-dialog v-model="pickerModal" max-width="300">
           <template v-slot:activator="{ on }">
-            <v-btn text v-on="on" style="height: auto">
+            <v-btn text v-on="on" style="height: auto" :loading="isLoading">
               <h1 class="display-3">{{ time }}</h1>
             </v-btn>
           </template>
@@ -24,7 +24,7 @@
           </v-card>
         </v-dialog>
         <v-chip-group multiple active-class="primary--text" v-model="selectedDays" @change="_updateAlarm()">
-          <v-chip v-for="day in weekDays" :key="day.key">
+          <v-chip v-for="day in weekDays" :key="day.key" :disabled="isLoading">
             {{ day.value }}
           </v-chip>
         </v-chip-group>
@@ -35,14 +35,16 @@
 
 <script>
 import {mapActions} from 'vuex'
+import lightApi from '@/api/light'
 
 export default {
   name: 'RisingSunConfig',
   data() {
     return {
+      isLoading: true,
       time: '8:00',
       pickerModal: false,
-      selectedDays: [1,2,3,4,5]
+      selectedDays: []
     }
   },
 
@@ -61,6 +63,18 @@ export default {
   },
 
   methods: {
+    async fetchConfig() {
+      const result = await lightApi.getAlarm()
+      if (result.isSuccess) {
+        const alarmConfig = result.body
+
+        this.time = alarmConfig.desiredWakeTime || '8:00'
+        this.selectedDays = alarmConfig.alarmDays || [1,2,3,4,5]
+      }
+
+      this.isLoading = false
+    },
+
     _updateAlarm() {
       this.pickerModal = false
       this.updateAlarm({ time: this.time, days: this.selectedDays })
@@ -69,6 +83,10 @@ export default {
     ...mapActions([
       'updateAlarm'
     ]),
+  },
+
+  created() {
+    this.fetchConfig()
   }
 }
 </script>
