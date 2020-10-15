@@ -62,7 +62,6 @@ class api {
             console.log('started the alarm cron: \n'+ JSON.stringify(alarmConfig.sequence, null, 4))
         }
 
-
         // toggle the light on and off without changing the configuration
         app.get('/api/toggle', async (req, res) => {
             if (lightController.isWakeUpSequenceRunning()) {
@@ -110,8 +109,8 @@ class api {
                 if (alarmCron) {
                     alarmCron.stop()
                 }
-                alarmCron = new Cron(alarmConfig.cron, () => {
-                    lightController.startWakeUpSequence(alarmConfig.sequence)
+                alarmCron = new Cron(config.cron, () => {
+                    lightController.startWakeUpSequence(config.sequence)
                 })
                 alarmCron.start()
 

@@ -3,7 +3,7 @@ const Lifx = require('node-lifx-lan')
 const Cron = require('cron').CronJob
 
 let currentConfig = null
-let wakeOpSequenceCron = null
+let wakeUpSequenceCron = null
 
 let _device = null
 
@@ -36,7 +36,7 @@ module.exports = {
     },
 
     isWakeUpSequenceRunning() {
-        return !!wakeOpSequenceCron
+        return !!wakeUpSequenceCron
     },
 
     /**
@@ -72,6 +72,8 @@ module.exports = {
     },
 
     async startWakeUpSequence(sequence) {
+        console.log(`Starting the alarm sequence !`)
+
         let device = await this._getDevice()
         await device.turnOn({
             duration: 0,
@@ -83,12 +85,12 @@ module.exports = {
         })
 
         // stop running alarm to prevent collision issues
-        wakeOpSequenceCron && wakeOpSequenceCron.stop()
+        wakeUpSequenceCron && wakeUpSequenceCron.stop()
 
-        wakeOpSequenceCron = new Cron('*/10 * * * * *', async () => {
+        wakeUpSequenceCron = new Cron('*/10 * * * * *', async () => {
             if (this._isSequenceDone(sequence)) {
-                wakeOpSequenceCron.stop()
-                wakeOpSequenceCron = null
+                wakeUpSequenceCron.stop()
+                wakeUpSequenceCron = null
             }
 
             device = await this._getDevice()
@@ -102,7 +104,7 @@ module.exports = {
                 }
             })
         })
-        wakeOpSequenceCron.start()
+        wakeUpSequenceCron.start()
     },
 
     _calculateLightValue(sequence) {
