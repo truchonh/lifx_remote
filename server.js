@@ -100,7 +100,8 @@ class api {
         })
         app.put('/api/alarm', async (req, res) => {
             const config = req.body
-            if (this._validateAlarmConfig(config)) {
+            const validationError = this._validateAlarmConfig(config)
+            if (!validationError) {
 
                 await this._setAlarmConfig(config)
                 console.log('New alarm config: ');
@@ -117,7 +118,8 @@ class api {
                 res.send()
 
             } else {
-                res.status(400).send({ message: 'Invalid alarm config.' })
+                console.log('Invalid alarm config: '+ validationError);
+                res.status(400).send({ message: 'Invalid alarm config: '+ validationError })
             }
         })
 
@@ -125,12 +127,16 @@ class api {
     }
 
     static _validateAlarmConfig(config) {
-        if (typeof config.cron !== 'string') {
-            return false
-        } else if (_.isEmpty(config.sequence)) {
-            return false
-        } else if (!_.isArray(config.sequence)) {
-            return false
+        if (typeof config.desiredWakeTime !== 'string') {
+            return 'Desired wake time missing'
+        } else if (config.desiredWakeTime.split(':').length !== 2) {
+            return 'Invalid desired wake time value'
+        } else if (_.isEmpty(config.alarmDays) || !_.isArray(config.alarmDays)) {
+            return 'Empty or missing alarm days'
+        } else if (typeof config.cron !== 'string') {
+            return 'Alarm cron missing or invalid'
+        } else if (_.isEmpty(config.sequence) || !_.isArray(config.sequence)) {
+            return 'Empty or missing wake up sequence'
         } else if (
             config.sequence.some(_item => {
                 if (typeof _item.time !== 'string') {
@@ -143,9 +149,8 @@ class api {
                 return false
             })
         ) {
-            return false
+            return 'A wake up sequence value is invalid'
         }
-        return true
     }
 
     static async _getAlarmConfig() {
