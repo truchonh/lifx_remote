@@ -39,6 +39,32 @@ const defaults = {
         ]
     }
 }
+const lightValueTimeMap = {
+    0: { power: true, color: { brightness: 0.52, kelvin: 2800 } },
+    1: { power: true, color: { brightness: 0.52, kelvin: 2800 } },
+    2: { power: true, color: { brightness: 0.4, kelvin: 2500 } },
+    3: { power: true, color: { brightness: 0.4, kelvin: 2500 } },
+    4: { power: true, color: { brightness: 0.4, kelvin: 2500 } },
+    5: { power: true, color: { brightness: 0.4, kelvin: 2500 } },
+    6: { power: true, color: { brightness: 0.4, kelvin: 2500 } },
+    7: { power: true, color: { brightness: 0.76, kelvin: 3400 } },
+    8: { power: true, color: { brightness: 0.76, kelvin: 3400 } },
+    9: { power: true, color: { brightness: 0.76, kelvin: 3400 } },
+    10: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    11: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    12: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    13: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    14: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    15: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    16: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    17: { power: true, color: { brightness: 1, kelvin: 4000 } },
+    18: { power: true, color: { brightness: 0.68, kelvin: 3200 } },
+    19: { power: true, color: { brightness: 0.68, kelvin: 3200 } },
+    20: { power: true, color: { brightness: 0.52, kelvin: 2800 } },
+    21: { power: true, color: { brightness: 0.52, kelvin: 2800 } },
+    22: { power: true, color: { brightness: 0.52, kelvin: 2800 } },
+    23: { power: true, color: { brightness: 0.52, kelvin: 2800 } },
+}
 
 let alarmCron = null
 
@@ -63,7 +89,7 @@ class api {
             logger.log('started the alarm cron: \n'+ JSON.stringify(alarmConfig.sequence, null, 4))
         }
 
-        // toggle the light on and off without changing the configuration
+        // toggle the light on and off and set the luminosity to an appropriate value for the time of day
         app.get('/api/toggle', async (req, res) => {
             if (lightController.isWakeUpSequenceRunning()) {
                 return res.status(401).end()
@@ -71,9 +97,11 @@ class api {
 
             const state = await lightController.getState()
 
-            if (state) {
-                state.power = !state.power
+            if (state && state.power) {
+                state.power = false
                 await lightController.setState(state)
+            } else {
+                await lightController.setState(lightValueTimeMap[new Date().getHours()])
             }
 
             res.send({ state })
