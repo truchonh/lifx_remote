@@ -86,7 +86,8 @@ class api {
                 lightController.startWakeUpSequence(alarmConfig.sequence)
             })
             alarmCron.start()
-            logger.log('started the alarm cron: \n'+ JSON.stringify(alarmConfig.sequence, null, 4))
+            logger.log('started the alarm cron:')
+            logger.log(JSON.stringify(alarmConfig, null, 4));
         }
 
         // toggle the light on and off and set the luminosity to an appropriate value for the time of day
