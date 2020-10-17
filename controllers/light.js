@@ -8,6 +8,11 @@ let wakeUpSequenceCron = null
 
 let _device = null
 
+setInterval(async () => {
+    const devices = await Lifx.discover()
+    _device = devices[0]
+}, 60*1000)
+
 module.exports = {
     async _getDevice() {
         if (!_device) {
