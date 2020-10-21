@@ -9,15 +9,25 @@ let wakeUpSequenceCron = null
 let _device = null
 
 setInterval(async () => {
-    const devices = await Lifx.discover()
-    _device = devices[0]
+    _device = null;
+    await lightController._getDevice()
 }, 60*1000)
 
-module.exports = {
+const lightController = {
     async _getDevice() {
         if (!_device) {
-            const devices = await Lifx.discover()
-            _device = devices[0]
+            try {
+                const devices = await Lifx.discover()
+                if (devices.length === 1) {
+                    _device = devices[0]
+                } else {
+                    logger.log('No device detected on the network.')
+                }
+            } catch (err) {
+                logger.error('Error while searching for the device: '+ JSON.stringify({
+                    message: err.message, stack: err.stack
+                }, null, 4))
+            }
         }
         return _device
     },
@@ -28,7 +38,7 @@ module.exports = {
     async getState() {
         const device = await this._getDevice()
 
-        if (!device) {
+        if (device === null) {
             currentConfig = null
         } else {
             const state = await device.getLightState()
@@ -83,6 +93,11 @@ module.exports = {
         let device;
         try {
             device = await this._getDevice()
+            if (device === null) {
+                logger.error('Alarm sequence stopped, no device found.')
+                return
+            }
+
             await device.turnOn({
                 duration: 0,
                 color: {
@@ -174,4 +189,6 @@ module.exports = {
 
         return nowMinutes >= sequenceMinutes
     }
-};
+}
+
+module.exports = lightController
