@@ -6,29 +6,29 @@ const logger = require('../utils/simpleLogger');
 let currentConfig = null
 let wakeUpSequenceCron = null
 
-let _device = null
-
-setInterval(async () => {
-    _device = null;
-    await lightController._getDevice()
-}, 60*1000)
+const DISCOVERY_ATTEMPTS = 10
 
 const lightController = {
     async _getDevice() {
-        if (!_device) {
+        let _device = null
+        let attempts = 0
+
+        while (_device === null && attempts < DISCOVERY_ATTEMPTS) {
+            attempts++
+
             try {
-                const devices = await Lifx.discover()
-                if (devices.length === 1) {
+                const devices = await Lifx.discover({ wait: 500 })
+                if (devices.length >= 1) {
                     _device = devices[0]
-                } else {
-                    logger.log('No device detected on the network.')
                 }
             } catch (err) {
                 logger.error('Error while searching for the device: '+ JSON.stringify({
                     message: err.message, stack: err.stack
                 }, null, 4))
+                break
             }
         }
+
         return _device
     },
 
@@ -71,12 +71,14 @@ const lightController = {
                 ...config.color
             }
         }
-        const device = await this._getDevice()
+        // const device = await this._getDevice()
 
         if (config.power) {
-            device && await device.turnOn(params)
+            // device && await device.turnOn(params)
+            await Lifx.turnOnBroadcast(params)
         } else {
-            device && await device.turnOff(params)
+            // device && await device.turnOff(params)
+            await Lifx.turnOffBroadcast(params)
         }
 
         currentConfig = {
@@ -90,15 +92,8 @@ const lightController = {
     async startWakeUpSequence(sequence) {
         logger.log(`Starting the alarm sequence !`)
 
-        let device;
         try {
-            device = await this._getDevice()
-            if (device === null) {
-                logger.error('Alarm sequence stopped, no device found.')
-                return
-            }
-
-            await device.turnOn({
+            await Lifx.turnOnBroadcast({
                 duration: 0,
                 color: {
                     red:1, green: 1, blue: 1,
@@ -119,10 +114,8 @@ const lightController = {
                 wakeUpSequenceCron = null
             }
 
-            device = await this._getDevice()
-
             let config = this._calculateLightValue(sequence)
-            await device.setColor({
+            await Lifx.setColorBroadcast({
                 duration: 9.5 * 1000,
                 color: {
                     red:1, green: 1, blue: 1,
