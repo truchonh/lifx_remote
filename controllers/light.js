@@ -6,18 +6,18 @@ const logger = require('../utils/simpleLogger');
 let currentConfig = null
 let wakeUpSequenceCron = null
 
-const DISCOVERY_ATTEMPTS = 10
+const DISCOVERY_ATTEMPTS = 3
 
+let _device = null
 const lightController = {
     async _getDevice() {
-        let _device = null
         let attempts = 0
 
         while (_device === null && attempts < DISCOVERY_ATTEMPTS) {
             attempts++
 
             try {
-                const devices = await Lifx.discover({ wait: 500 })
+                const devices = await Lifx.discover({ expectedDevices: 1, wait: 5000 })
                 if (devices.length >= 1) {
                     _device = devices[0]
                 }
@@ -65,7 +65,7 @@ const lightController = {
      */
     async setState(config) {
         const params = {
-            duration: config.power ? 400 : 1200,
+            duration: 50, //config.power ? 400 : 1200,
             color: {
                 red:1, green: 1, blue: 1,
                 ...config.color

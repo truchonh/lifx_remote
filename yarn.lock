@@ -923,10 +923,9 @@ negotiator@0.6.2:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
   integrity sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==
 
-node-lifx-lan@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/node-lifx-lan/-/node-lifx-lan-0.4.2.tgz#afda14bfad32b488ce030501d7a75889bafbeb09"
-  integrity sha512-tIyRFLyXRKZ14Qr4QoMEBEuUyeTf45I2hEaDXh5SIr76p1IRuJfQSCyxHHEz7Dk3O5x0KvjbHZ0eAY+kLuKdeA==
+"node-lifx-lan@git://github.com/truchonh/node-lifx-lan.git#898bb356":
+  version "0.4.5"
+  resolved "git://github.com/truchonh/node-lifx-lan.git#898bb356d75e5280f27d4478cfe4b9d04e902462"
 
 node-windows@^1.0.0-beta.1:
   version "1.0.0-beta.5"
