@@ -43,7 +43,7 @@ class lifxApi {
                     pkt_type: 'SetLightPower',
                     pkt_args: {
                         duration: duration / 1000,
-                        power: power && 1 || 0
+                        level: power && 1 || 0
                     }
                 }
             })
