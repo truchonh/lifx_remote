@@ -1,4 +1,5 @@
 const superagent = require('superagent')
+const logger = require('../utils/simpleLogger')
 
 class lifxApi {
     static async getState() {
@@ -10,6 +11,7 @@ class lifxApi {
                     pkt_type: 'GetColor'
                 }
             })
+        logger.log(JSON.stringify(res.body, null, 4))
 
         const devices = Object.values(res.body.results)
         if (devices.length) {
@@ -45,6 +47,7 @@ class lifxApi {
                     }
                 }
             })
+        logger.log(JSON.stringify(res.body, null, 4))
 
         const devices = Object.values(res.body.results)
         return devices.length && devices[0] === 'ok'
@@ -75,6 +78,7 @@ class lifxApi {
                     }
                 }
             })
+        logger.log(JSON.stringify(res.body, null, 4))
 
         const devices = Object.values(res.body.results)
         return devices.length && devices[0] === 'ok'

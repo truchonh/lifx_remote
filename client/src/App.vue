@@ -22,6 +22,7 @@
 import RisingSunConfig from './components/RisingSunConfig'
 import QuickActions from './components/QuickActions'
 import { mdiRefresh } from '@mdi/js'
+import { mapState } from 'vuex'
 
 export default {
   name: 'App',
@@ -42,6 +43,12 @@ export default {
       this.$refs.quickActions.fetchConfig()
     }
   },
+
+  created() {
+    document.addEventListener('resume', () => {
+      this.refresh()
+    })
+  }
 };
 </script>
 

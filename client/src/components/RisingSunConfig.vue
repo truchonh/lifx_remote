@@ -19,11 +19,11 @@
                 v-if="pickerModal"
                 format="24hr"
                 full-width
-                @change="_updateAlarm()"
+                @change="debouncedUpdateAlarm()"
             />
           </v-card>
         </v-dialog>
-        <v-chip-group multiple active-class="primary--text" v-model="selectedDays" @change="_updateAlarm()">
+        <v-chip-group multiple active-class="primary--text" v-model="selectedDays" @change="debouncedUpdateAlarm()">
           <v-chip v-for="day in weekDays" :key="day.key" :disabled="isLoading">
             {{ day.value }}
           </v-chip>
@@ -36,6 +36,7 @@
 <script>
 import {mapActions} from 'vuex'
 import lightApi from '@/api/light'
+import _ from 'lodash'
 
 export default {
   name: 'RisingSunConfig',
@@ -44,7 +45,8 @@ export default {
       isLoading: true,
       time: '8:00',
       pickerModal: false,
-      selectedDays: []
+      selectedDays: [],
+      debouncedUpdateAlarm: _.debounce(() => this._updateAlarm(), 1000),
     }
   },
 
