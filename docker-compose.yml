@@ -15,7 +15,7 @@ services:
     build: .
     environment:
       - PORT=80
-      - LIFX_HOSTNAME=localhost:6100
+      - LIFX_HOSTNAME=192.168.0.26:6100
     ports:
       - "9999:80"
     restart: always
