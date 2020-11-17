@@ -9,7 +9,9 @@ services:
     networks:
       - lifx_remote_network
     volumes:
-    - ./config/lifx.yml:/project/config
+      - ./config/lifx.yml:/project/config
+    ports:
+      - "6100:80"
 
   api:
     build: .
