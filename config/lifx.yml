@@ -1,0 +1,18 @@
+interactor:
+  # The host the server is started on
+  # If you want to expose the server externally and you aren't running
+  # this through docker, 0.0.0.0 is what you want.
+  # The server has no authentication, so it's not recommended to do that
+  # without it being behind a VPN
+  host: 0.0.0.0
+
+  # The port used by the server
+  port: 6100
+
+targets:
+  home_network:
+    type: lan
+    options:
+      discovery_options:
+        hardcoded_discovery:
+          d073d53ccd2d: 192.168.0.101

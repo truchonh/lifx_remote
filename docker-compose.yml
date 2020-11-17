@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  lifx:
+    image: delfick/lifx-photons-interactor
+    environment:
+      - TZ=America/Montreal
+    restart: always
+    network_mode: host
+    networks:
+      - lifx_remote_network
+    volumes:
+    - ./config/lifx.yml:/project/config
+
+  api:
+    build: .
+    environment:
+      - PORT=80
+    ports:
+      - "9999:80"
+    networks:
+      - lifx_remote_network
+      - data_network
+    restart: always
+
+networks:
+  data_network:
+    external: true
+  lifx_remote_network: ~

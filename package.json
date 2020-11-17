@@ -14,12 +14,6 @@
     "express": "^4.17.1",
     "lodash": "^4.17.15",
     "node-lifx-lan": "git://github.com/truchonh/node-lifx-lan.git#898bb356",
-    "node-windows": "^1.0.0-beta.1"
-  },
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^8.0.1",
-    "mock-require": "^3.0.3",
     "superagent": "^5.2.2"
   }
 }

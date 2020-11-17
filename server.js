@@ -10,8 +10,6 @@ const _ = require('lodash')
 const lightController = require('./controllers/light')
 const logger = require('./utils/simpleLogger');
 
-const HTTP_PORT = 9999
-
 const defaults = {
     ALARM_CONFIG: {
         cron: '15 8 * * *',
@@ -153,7 +151,7 @@ class api {
             }
         })
 
-        await app.listen(HTTP_PORT)
+        await app.listen(process.env.PORT)
     }
     static _validateAlarmConfig(config) {
         if (typeof config.desiredWakeTime !== 'string') {
