@@ -15,7 +15,7 @@ class lifxApi {
 
         const devices = Object.values(res.body.results)
         if (devices.length) {
-            const device = devices[0]
+            const device = devices[0].payload
             return {
                 power: !!device.power,
                 color: {
