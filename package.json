@@ -13,7 +13,6 @@
     "cron": "^1.8.2",
     "express": "^4.17.1",
     "lodash": "^4.17.15",
-    "node-lifx-lan": "git://github.com/truchonh/node-lifx-lan.git#898bb356",
     "superagent": "^5.2.2"
   }
 }

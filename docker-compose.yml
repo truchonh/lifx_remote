@@ -6,8 +6,6 @@ services:
       - TZ=America/Montreal
     restart: always
     network_mode: host
-    networks:
-      - lifx_remote_network
     volumes:
       - ./config/lifx.yml:/project/config
     ports:
@@ -19,12 +17,4 @@ services:
       - PORT=80
     ports:
       - "9999:80"
-    networks:
-      - lifx_remote_network
-      - data_network
     restart: always
-
-networks:
-  data_network:
-    external: true
-  lifx_remote_network: ~
