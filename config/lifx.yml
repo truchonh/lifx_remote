@@ -7,7 +7,7 @@ interactor:
   host: 0.0.0.0
 
   # The port used by the server
-  port: 6100
+  port: 80
 
 targets:
   home_network:

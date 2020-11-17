@@ -1,53 +1,21 @@
 const _ = require('lodash')
-const Lifx = require('node-lifx-lan')
 const Cron = require('cron').CronJob
 const logger = require('../utils/simpleLogger');
+const lifxApi = require('./lifxApi');
 
 let currentConfig = null
 let wakeUpSequenceCron = null
 
-const DISCOVERY_ATTEMPTS = 3
-
-let _device = null
 const lightController = {
-    async _getDevice() {
-        let attempts = 0
-
-        while (_device === null && attempts < DISCOVERY_ATTEMPTS) {
-            attempts++
-
-            try {
-                const devices = await Lifx.discover({ expectedDevices: 1, wait: 5000 })
-                if (devices.length >= 1) {
-                    _device = devices[0]
-                }
-            } catch (err) {
-                logger.error('Error while searching for the device: '+ JSON.stringify({
-                    message: err.message, stack: err.stack
-                }, null, 4))
-                break
-            }
-        }
-
-        return _device
-    },
-
     /**
      * @returns {Promise<{ power: boolean, color: { brightness: number, kelvin: number } }>}
      */
     async getState() {
-        const device = await this._getDevice()
-
-        if (device === null) {
-            currentConfig = null
-        } else {
-            const state = await device.getLightState()
-            currentConfig = {
-                power,
-                color: { brightness, kelvin }
-            } = state
-        }
-
+        const state = await lifxApi.getState();
+        currentConfig = {
+            power,
+            color: { brightness, kelvin }
+        } = state
         return currentConfig
     },
 
@@ -65,20 +33,20 @@ const lightController = {
      */
     async setState(config) {
         const params = {
-            duration: 50, //config.power ? 400 : 1200,
+            duration: config.power ? 250 : 500,
             color: {
-                red:1, green: 1, blue: 1,
                 ...config.color
             }
         }
-        // const device = await this._getDevice()
 
         if (config.power) {
-            // device && await device.turnOn(params)
-            await Lifx.turnOnBroadcast(params)
+            await Promise.all([
+                lifxApi.setPower({ power: true, duration: params.duration }),
+                new Promise(resolve => setTimeout(resolve, params.duration))
+            ])
+            await lifxApi.setColor(params)
         } else {
-            // device && await device.turnOff(params)
-            await Lifx.turnOffBroadcast(params)
+            await lifxApi.setPower({ power: false, duration: params.duration })
         }
 
         currentConfig = {
@@ -93,14 +61,8 @@ const lightController = {
         logger.log(`Starting the alarm sequence !`)
 
         try {
-            await Lifx.turnOnBroadcast({
-                duration: 0,
-                color: {
-                    red:1, green: 1, blue: 1,
-                    brightness: 0,
-                    kelvin: 1500
-                }
-            })
+            await lifxApi.setColor({ color: { brightness: 0, kelvin: 1500 } })
+            await lifxApi.setPower({ power: true })
         } catch (err) {
             logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
             this._stopWakeSequence()
@@ -115,10 +77,9 @@ const lightController = {
             }
 
             let config = this._calculateLightValue(sequence)
-            await Lifx.setColorBroadcast({
+            await lifxApi.setColor({
                 duration: 9.5 * 1000,
                 color: {
-                    red:1, green: 1, blue: 1,
                     ...config
                 }
             })
