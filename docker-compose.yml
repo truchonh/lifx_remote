@@ -4,7 +4,6 @@ services:
     image: delfick/lifx-photons-interactor
     environment:
       - TZ=America/Montreal
-    restart: always
     network_mode: host
     volumes:
       - ./config/:/project/config/
