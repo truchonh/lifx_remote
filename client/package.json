@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "kelvin-to-rgb": "^1.0.2",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "superagent": "^5.2.2",
     "vue": "^2.6.11",
     "vuetify": "^2.2.11",
