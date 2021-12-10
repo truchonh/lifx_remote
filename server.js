@@ -120,7 +120,7 @@ class api {
 
             logger.log(JSON.stringify(req.body, null, 4))
             await lightController.setState(req.body)
-            res.send()
+            res.end()
         })
 
         app.get('/api/alarm', async (req, res) => {
@@ -143,7 +143,7 @@ class api {
                 })
                 alarmCron.start()
 
-                res.send()
+                res.end()
 
             } else {
                 logger.log('Invalid alarm config: '+ validationError);
