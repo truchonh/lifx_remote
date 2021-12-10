@@ -4,7 +4,7 @@ import ApiResult from './ApiResult'
 export default {
     async getState() {
         try {
-            const res = await superagent('GET', 'http://192.168.0.26:9999/api/state')
+            const res = await superagent('GET', 'http://192.168.0.31:9999/api/state')
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
@@ -13,7 +13,7 @@ export default {
 
     async setState(config) {
         try {
-            const res = await superagent('PUT', 'http://192.168.0.26:9999/api/state').send(config)
+            const res = await superagent('PUT', 'http://192.168.0.31:9999/api/state').send(config)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
@@ -22,7 +22,7 @@ export default {
 
     async getAlarm() {
         try {
-            const res = await superagent('GET', 'http://192.168.0.26:9999/api/alarm')
+            const res = await superagent('GET', 'http://192.168.0.31:9999/api/alarm')
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
@@ -75,7 +75,7 @@ export default {
                 kelvin: 4000
             });
 
-            const res = await superagent('PUT', 'http://192.168.0.26:9999/api/alarm').send(config)
+            const res = await superagent('PUT', 'http://192.168.0.31:9999/api/alarm').send(config)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)

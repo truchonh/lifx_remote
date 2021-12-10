@@ -7,14 +7,12 @@ services:
     network_mode: host
     volumes:
       - ./config/:/project/config/
-    ports:
-      - "6100:6100"
 
   api:
     build: .
     environment:
       - PORT=80
-      - LIFX_HOSTNAME=192.168.0.26:6100
+      - LIFX_HOSTNAME=192.168.0.31:6100
     ports:
       - "9999:80"
     restart: always

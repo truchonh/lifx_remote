@@ -153,6 +153,7 @@ class api {
 
         await app.listen(process.env.PORT)
     }
+
     static _validateAlarmConfig(config) {
         if (typeof config.desiredWakeTime !== 'string') {
             return 'Desired wake time missing'

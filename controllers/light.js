@@ -11,12 +11,16 @@ const lightController = {
      * @returns {Promise<{ power: boolean, color: { brightness: number, kelvin: number } }>}
      */
     async getState() {
-        const state = await lifxApi.getState();
-        currentConfig = {
-            power,
-            color: { brightness, kelvin }
-        } = state
-        return currentConfig
+        const state = await lifxApi.getState()
+        if (state) {
+            currentConfig = {
+                power,
+                color: { brightness, kelvin }
+            } = state
+            return currentConfig
+        } else {
+            return null
+        }
     },
 
     isWakeUpSequenceRunning() {
