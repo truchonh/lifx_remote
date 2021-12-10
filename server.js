@@ -103,8 +103,9 @@ class api {
                 await lightController.setState(lightValueTimeMap[new Date().getHours()])
             }
 
-            res.send({ state })
-            logger.log(JSON.stringify(state, null, 4))
+            const newState = await lightController.getState()
+            res.send({ state: newState })
+            logger.log(JSON.stringify(newState, null, 4))
         })
 
         app.get('/api/state', async (req, res) => {
