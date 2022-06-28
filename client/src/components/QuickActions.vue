@@ -46,6 +46,17 @@
           <v-icon disabled slot="append">{{ mdiLightbulbOn }}</v-icon>
         </v-switch>
       </v-row>
+
+      <v-row justify="center">
+        <v-col cols="12">
+          <v-text-field
+              label="Serveur"
+              solo
+              v-model="hostname"
+              @change="updateHostname"
+          ></v-text-field>
+        </v-col>
+      </v-row>
     </v-form>
   </v-container>
 </template>
@@ -68,7 +79,9 @@ export default {
       state: true,
       toggleLoading: false,
 
-      isTempLinkedToBrightness: true
+      isTempLinkedToBrightness: true,
+
+      hostname: '',
     }
   },
 
@@ -85,6 +98,7 @@ export default {
 
   methods: {
     async fetchConfig() {
+      this.hostname = localStorage.getItem('hostname') || '192.168.0.32:9999'
       const result = await lightApi.getState()
       if (result.isSuccess) {
         const state = result.body.state
@@ -133,6 +147,10 @@ export default {
       })
 
       this.toggleLoading = false
+    },
+
+    updateHostname() {
+      localStorage.setItem('hostname', this.hostname)
     },
 
     ...mapActions([

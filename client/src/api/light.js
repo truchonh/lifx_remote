@@ -2,9 +2,14 @@ import superagent from 'superagent'
 import ApiResult from './ApiResult'
 
 export default {
+    get _hostname() {
+        const hostname = localStorage.getItem('hostname') || '192.168.0.32:9999'
+        return `http://${hostname}`
+    },
+
     async getState() {
         try {
-            const res = await superagent('GET', 'http://192.168.0.31:9999/api/state')
+            const res = await superagent('GET', `${this._hostname}/api/state`)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
@@ -13,7 +18,7 @@ export default {
 
     async setState(config) {
         try {
-            const res = await superagent('PUT', 'http://192.168.0.31:9999/api/state').send(config)
+            const res = await superagent('PUT', `${this._hostname}/api/state`).send(config)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
@@ -22,7 +27,7 @@ export default {
 
     async getAlarm() {
         try {
-            const res = await superagent('GET', 'http://192.168.0.31:9999/api/alarm')
+            const res = await superagent('GET', `${this._hostname}/api/alarm`)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
@@ -75,7 +80,7 @@ export default {
                 kelvin: 4000
             });
 
-            const res = await superagent('PUT', 'http://192.168.0.31:9999/api/alarm').send(config)
+            const res = await superagent('PUT', `${this._hostname}/api/alarm`).send(config)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
