@@ -50,7 +50,7 @@ export default {
                     {
                         time: `${date.getHours()}:${date.getMinutes()}`,
                         brightness: 0.01,
-                        kelvin: 1500
+                        kelvin: 100
                     }
                 ]
             }
@@ -58,16 +58,22 @@ export default {
             date.setMinutes(date.getMinutes() + 3)
             config.sequence.push({
                 time: `${date.getHours()}:${date.getMinutes()}`,
-                brightness: 0.10,
-                kelvin: 2500
+                brightness: 0.05,
+                kelvin: 1500
             });
             date.setMinutes(date.getMinutes() + 12)
             config.sequence.push({
                 time: `${date.getHours()}:${date.getMinutes()}`,
-                brightness: 0.3,
-                kelvin: 3100
+                brightness: 0.2,
+                kelvin: 1990
             });
-            date.setMinutes(date.getMinutes() + 25)
+            date.setMinutes(date.getMinutes() + 1)
+            config.sequence.push({
+                time: `${date.getHours()}:${date.getMinutes()}`,
+                brightness: 0.1,
+                kelvin: 2000
+            });
+            date.setMinutes(date.getMinutes() + 24)
             config.sequence.push({
                 time: `${date.getHours()}:${date.getMinutes()}`,
                 brightness: 0.3,
@@ -76,8 +82,8 @@ export default {
             date.setMinutes(date.getMinutes() + 5)
             config.sequence.push({
                 time: `${date.getHours()}:${date.getMinutes()}`,
-                brightness: 0.8,
-                kelvin: 4000
+                brightness: 0.3,
+                kelvin: 5500
             });
 
             const res = await superagent('PUT', `${this._hostname}/api/alarm`).send(config)

@@ -10,8 +10,8 @@
       <v-slider
           v-model="temperature"
           :disabled="!state"
-          :min="1500"
-          :max="4000"
+          :min="100"
+          :max="6500"
           :step="100"
           thumb-label
           @change="updateTemperature"
@@ -111,7 +111,7 @@ export default {
 
     updateBrightness() {
       if (this.isTempLinkedToBrightness) {
-        this.temperature = 1500 + (this.brightness * 25)
+        this.temperature = 100 + (this.brightness * 64)
       }
       this.setLightState({
         power: this.state,
@@ -124,7 +124,7 @@ export default {
 
     updateTemperature() {
       if (this.isTempLinkedToBrightness) {
-        this.brightness = (this.temperature - 1500) / 25
+        this.brightness = (this.temperature - 100) / 64
       }
       this.setLightState({
         power: this.state,

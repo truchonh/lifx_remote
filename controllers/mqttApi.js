@@ -52,7 +52,7 @@ class mqttApi {
             config.color_temp = this._convertToMqtt(kelvin)
         }
         if (kelvin && kelvin < 2000) {
-            config.color = this._kelvinToRgb(kelvin + 300)
+            config.color = this._kelvinToRgb(kelvin + 400)
         } else {
             config.color = rgb
         }

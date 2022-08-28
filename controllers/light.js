@@ -44,7 +44,7 @@ const lightController = {
      */
     async setState(config) {
         const params = {
-            duration: config.power === 'ON' ? 250 : 500,
+            duration: 250,
             color: {
                 ...config.color
             }
@@ -73,7 +73,7 @@ const lightController = {
         logger.log(`Starting the alarm sequence !`)
 
         try {
-            await mqttApi.setColor({ power: 'ON', color: { brightness: 0, kelvin: 1500 } })
+            await mqttApi.setColor({ power: 'ON', color: { brightness: 0, kelvin: 100 } })
         } catch (err) {
             logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
             this._stopWakeSequence()
