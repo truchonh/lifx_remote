@@ -67,13 +67,12 @@ export default {
                 brightness: 0.2,
                 kelvin: 1990
             });
-            date.setMinutes(date.getMinutes() + 1)
             config.sequence.push({
                 time: `${date.getHours()}:${date.getMinutes()}`,
                 brightness: 0.1,
                 kelvin: 2000
             });
-            date.setMinutes(date.getMinutes() + 24)
+            date.setMinutes(date.getMinutes() + 25)
             config.sequence.push({
                 time: `${date.getHours()}:${date.getMinutes()}`,
                 brightness: 0.3,
