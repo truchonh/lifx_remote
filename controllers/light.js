@@ -88,6 +88,7 @@ const lightController = {
             }
 
             let config = this._calculateLightValue(sequence)
+            logger.log(config)
             await mqttApi.setColor({
                 duration: 9.5 * 1000,
                 color: {
