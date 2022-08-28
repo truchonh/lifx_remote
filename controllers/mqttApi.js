@@ -4,7 +4,7 @@ const { xyBriToRgb } = require('cie-rgb-color-converter')
 
 class mqttApi {
     static async getState() {
-        const state = await this._query('group_1', 'get')
+        const state = await this._query('kitchen', 'get')
         if (state) {
             return {
                 power: state.state,
