@@ -11,7 +11,14 @@ const lightController = {
      * @returns {Promise<{ power: boolean, color: { brightness: number, kelvin: number } }>}
      */
     async getState() {
-        const state = await mqttApi.getState()
+        let state
+        try {
+            state = await mqttApi.getState()
+        } catch (err) {
+            logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
+            return null
+        }
+
         if (state) {
             currentConfig = state
             return {
@@ -43,11 +50,16 @@ const lightController = {
             }
         }
 
-        await mqttApi.setColor({
-            power: config.power,
-            duration: params.duration,
-            color: config.color,
-        })
+        try {
+            await mqttApi.setColor({
+                power: config.power,
+                duration: params.duration,
+                color: config.color,
+            })
+        } catch (err) {
+            logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
+            return
+        }
 
         currentConfig = {
             power: config.power,
