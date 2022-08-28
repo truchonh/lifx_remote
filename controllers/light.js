@@ -1,7 +1,7 @@
 const _ = require('lodash')
 const Cron = require('cron').CronJob
-const logger = require('../utils/simpleLogger');
-const lifxApi = require('./lifxApi');
+const logger = require('../utils/simpleLogger')
+const mqttApi = require('./mqttApi')
 
 let currentConfig = null
 let wakeUpSequenceCron = null
@@ -11,13 +11,13 @@ const lightController = {
      * @returns {Promise<{ power: boolean, color: { brightness: number, kelvin: number } }>}
      */
     async getState() {
-        const state = await lifxApi.getState()
+        const state = await mqttApi.getState()
         if (state) {
-            currentConfig = {
-                power,
-                color: { brightness, kelvin }
-            } = state
-            return currentConfig
+            currentConfig = state
+            return {
+                ...currentConfig,
+                power: currentConfig.power === 'ON'
+            }
         } else {
             return null
         }
@@ -29,7 +29,7 @@ const lightController = {
 
     /**
      * @param {object} config
-     * @param {boolean} config.power
+     * @param {string} config.power
      * @param {object} config.color
      * @param {number} config.color.brightness
      * @param {number} config.color.kelvin
@@ -37,21 +37,17 @@ const lightController = {
      */
     async setState(config) {
         const params = {
-            duration: config.power ? 250 : 500,
+            duration: config.power === 'ON' ? 250 : 500,
             color: {
                 ...config.color
             }
         }
 
-        if (config.power) {
-            await Promise.all([
-                lifxApi.setPower({ power: true, duration: params.duration }),
-                new Promise(resolve => setTimeout(resolve, params.duration))
-            ])
-            await lifxApi.setColor(params)
-        } else {
-            await lifxApi.setPower({ power: false, duration: params.duration })
-        }
+        await mqttApi.setColor({
+            power: config.power,
+            duration: params.duration,
+            color: config.color,
+        })
 
         currentConfig = {
             power: config.power,
@@ -65,8 +61,7 @@ const lightController = {
         logger.log(`Starting the alarm sequence !`)
 
         try {
-            await lifxApi.setColor({ color: { brightness: 0, kelvin: 1500 } })
-            await lifxApi.setPower({ power: true })
+            await mqttApi.setColor({ power: 'ON', color: { brightness: 0, kelvin: 1500 } })
         } catch (err) {
             logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
             this._stopWakeSequence()
@@ -81,7 +76,7 @@ const lightController = {
             }
 
             let config = this._calculateLightValue(sequence)
-            await lifxApi.setColor({
+            await mqttApi.setColor({
                 duration: 9.5 * 1000,
                 color: {
                     ...config

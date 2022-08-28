@@ -94,14 +94,10 @@ class api {
                 return res.status(401).end()
             }
 
-            const state = await lightController.getState()
-
-            if (state && state.power) {
-                state.power = false
-                await lightController.setState(state)
-            } else {
-                await lightController.setState(lightValueTimeMap[new Date().getHours()])
-            }
+            await lightController.setState({
+                ...lightValueTimeMap[new Date().getHours()],
+                power: 'TOGGLE'
+            })
 
             const newState = await lightController.getState()
             res.send({ state: newState })
@@ -119,8 +115,13 @@ class api {
                 return res.status(401).end()
             }
 
-            logger.log(JSON.stringify(req.body, null, 4))
-            await lightController.setState(req.body)
+            const body = {
+                ...req.body,
+                power: req.body.power ? 'ON' : 'OFF'
+            }
+
+            logger.log(JSON.stringify(body, null, 4))
+            await lightController.setState(body)
             res.end()
         })
 
