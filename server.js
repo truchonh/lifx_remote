@@ -8,8 +8,7 @@ const fs_writeFile = util.promisify(fs.writeFile)
 const Cron = require('cron').CronJob
 const _ = require('lodash')
 const lightController = require('./controllers/light')
-const logger = require('./utils/simpleLogger');
-const mqttApi = require('./controllers/mqttApi')
+const logger = require('./utils/simpleLogger')
 
 const defaults = {
     ALARM_CONFIG: {
@@ -154,7 +153,7 @@ class api {
                 alarmCron.start()
 
                 let cronSplit = config.cron.split(' ')
-                cronSplit[1] = parseInt(cronSplit[1]) + 8
+                cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
                 coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
 
                 res.end()
