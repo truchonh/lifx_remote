@@ -92,6 +92,7 @@ class api {
             let cronSplit = alarmConfig.cron.split(' ')
             cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
             coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
+            coffeeOffCron.start()
         }
 
         // toggle the light on and off and set the luminosity to an appropriate value for the time of day
@@ -152,9 +153,13 @@ class api {
                 })
                 alarmCron.start()
 
+                if (coffeeOffCron) {
+                    coffeeOffCron.stop()
+                }
                 let cronSplit = config.cron.split(' ')
                 cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
                 coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
+                coffeeOffCron.start()
 
                 res.end()
 
