@@ -9,6 +9,7 @@ const Cron = require('cron').CronJob
 const _ = require('lodash')
 const lightController = require('./controllers/light')
 const logger = require('./utils/simpleLogger');
+const mqttApi = require('./controllers/mqttApi')
 
 const defaults = {
     ALARM_CONFIG: {
@@ -65,14 +66,15 @@ const lightValueTimeMap = {
 }
 
 let alarmCron = null
+let coffeeOffCron = null
 
 
 class api {
     static async start() {
         const app = express()
 
-        app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
-        app.use(bodyParser.json({ limit: '5mb' }));
+        app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }))
+        app.use(bodyParser.json({ limit: '5mb' }))
 
         // serve the client
         app.use(express.static(path.join(__dirname, 'client', 'dist')))
@@ -82,10 +84,15 @@ class api {
         if (!_.isEmpty(alarmConfig)) {
             alarmCron = new Cron(alarmConfig.cron, () => {
                 lightController.startWakeUpSequence(alarmConfig.sequence)
+                this._initCoffee()
             })
             alarmCron.start()
             logger.log('started the alarm cron:')
-            logger.log(JSON.stringify(alarmConfig, null, 4));
+            logger.log(JSON.stringify(alarmConfig, null, 4))
+
+            let cronSplit = alarmConfig.cron.split(' ')
+            cronSplit[1] = parseInt(cronSplit[1]) + 8
+            coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
         }
 
         // toggle the light on and off and set the luminosity to an appropriate value for the time of day
@@ -134,26 +141,48 @@ class api {
             if (!validationError) {
 
                 await this._setAlarmConfig(config)
-                logger.log('New alarm config: ');
-                logger.log(JSON.stringify(config, null, 4));
+                logger.log('New alarm config: ')
+                logger.log(JSON.stringify(config, null, 4))
 
                 if (alarmCron) {
                     alarmCron.stop()
                 }
                 alarmCron = new Cron(config.cron, () => {
-                    lightController.startWakeUpSequence(config.sequence)
+                    lightController.startWakeUpSequence(alarmConfig.sequence)
+                    this._initCoffee()
                 })
                 alarmCron.start()
+
+                let cronSplit = alarmConfig.cron.split(' ')
+                cronSplit[1] = parseInt(cronSplit[1]) + 8
+                coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
 
                 res.end()
 
             } else {
-                logger.log('Invalid alarm config: '+ validationError);
+                logger.log('Invalid alarm config: '+ validationError)
                 res.status(400).send({ message: 'Invalid alarm config: '+ validationError })
             }
         })
 
         await app.listen(process.env.PORT)
+    }
+
+    static async _initCoffee() {
+        const mqttApi = require('./controllers/mqttApi')
+        // Temporary coffee machine power on command
+        logger.log('Heating up the espresso machine :)')
+        await mqttApi._query('coffee', 'set', {
+            state: 'ON'
+        })
+    }
+
+    static async _stopCoffee() {
+        const mqttApi = require('./controllers/mqttApi')
+        logger.log('Heating up the espresso machine :)')
+        await mqttApi._query('coffee', 'set', {
+            state: 'OFF'
+        })
     }
 
     static _validateAlarmConfig(config) {
