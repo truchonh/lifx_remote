@@ -153,7 +153,7 @@ class api {
                 })
                 alarmCron.start()
 
-                let cronSplit = alarmConfig.cron.split(' ')
+                let cronSplit = config.cron.split(' ')
                 cronSplit[1] = parseInt(cronSplit[1]) + 8
                 coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
 
