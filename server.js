@@ -147,7 +147,7 @@ class api {
                     alarmCron.stop()
                 }
                 alarmCron = new Cron(config.cron, () => {
-                    lightController.startWakeUpSequence(alarmConfig.sequence)
+                    lightController.startWakeUpSequence(config.sequence)
                     this._initCoffee()
                 })
                 alarmCron.start()
