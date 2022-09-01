@@ -183,7 +183,7 @@ class api {
 
     static async _stopCoffee() {
         const mqttApi = require('./controllers/mqttApi')
-        logger.log('Heating up the espresso machine :)')
+        logger.log('Shutting off the espresso machine zZz')
         await mqttApi._query('coffee', 'set', {
             state: 'OFF'
         })
