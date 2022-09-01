@@ -90,7 +90,7 @@ class api {
             logger.log(JSON.stringify(alarmConfig, null, 4))
 
             let cronSplit = alarmConfig.cron.split(' ')
-            cronSplit[1] = parseInt(cronSplit[1]) + 8
+            cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
             coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
         }
 
