@@ -5,7 +5,6 @@
   "main": "server.js",
   "license": "MIT",
   "scripts": {
-    "win_install": "node service_install.js",
     "test": "mocha \"test/**/*Test.js\" --timeout 30000"
   },
   "dependencies": {
