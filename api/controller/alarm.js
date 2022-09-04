@@ -13,6 +13,7 @@ const fs_writeFile = util.promisify(fs.writeFile)
 let alarmCron = null
 let coffeeOffCron = null
 let wakeUpSequenceCron = null
+let coffeeOnTimestamp = null
 
 class alarmController {
     static isWakeUpSequenceRunning() {
@@ -32,7 +33,7 @@ class alarmController {
 
             let cronSplit = alarmConfig.cron.split(' ')
             cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
-            coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
+            coffeeOffCron = new Cron(cronSplit.join(' '), () => this.stopCoffee())
             coffeeOffCron.start()
         }
     }
@@ -68,7 +69,7 @@ class alarmController {
         }
         let cronSplit = config.cron.split(' ')
         cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
-        coffeeOffCron = new Cron(cronSplit.join(' '), () => this._stopCoffee())
+        coffeeOffCron = new Cron(cronSplit.join(' '), () => this.stopCoffee())
         coffeeOffCron.start()
     }
 
@@ -78,13 +79,21 @@ class alarmController {
         await mqttApi._query('coffee', 'set', {
             state: 'ON'
         })
+        coffeeOnTimestamp = new Date()
     }
 
-    static async _stopCoffee() {
+    static async stopCoffee() {
         logger.log('Shutting off the espresso machine zZz')
         await mqttApi._query('coffee', 'set', {
             state: 'OFF'
         })
+        coffeeOnTimestamp = null
+    }
+
+    static async getCoffeeState() {
+        return {
+            power: !!coffeeOnTimestamp,
+        }
     }
 
     static async _setAlarmConfig(config) {
