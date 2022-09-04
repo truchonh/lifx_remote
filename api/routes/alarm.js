@@ -11,7 +11,7 @@ class alarmRoute extends BaseRoute {
             .get(this.handlerFactory.makeHandler(this._get))
             .put(this.handlerFactory.makeHandler(this._put))
 
-        this.router.route('coffee')
+        this.router.route('/coffee')
             .get(this.handlerFactory.makeHandler(this._getCoffeeState))
             .put(this.handlerFactory.makeHandler(this._setCoffeeState))
 
