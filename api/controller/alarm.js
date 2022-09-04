@@ -91,8 +91,10 @@ class alarmController {
     }
 
     static async getCoffeeState() {
+        const onTimeMS = coffeeOnTimestamp ? new Date().getTime() - coffeeOnTimestamp.getTime() : 0
         return {
             power: !!coffeeOnTimestamp,
+            powerOnTime: onTimeMS / 1000
         }
     }
 
