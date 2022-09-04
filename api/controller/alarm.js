@@ -25,7 +25,7 @@ class alarmController {
         if (!_.isEmpty(alarmConfig)) {
             alarmCron = new Cron(alarmConfig.cron, () => {
                 this.startWakeUpSequence(alarmConfig.sequence)
-                this._initCoffee()
+                this.initCoffee()
             })
             alarmCron.start()
             logger.log('started the alarm cron:')
@@ -60,7 +60,7 @@ class alarmController {
         }
         alarmCron = new Cron(config.cron, () => {
             this.startWakeUpSequence(config.sequence)
-            this._initCoffee()
+            this.initCoffee()
         })
         alarmCron.start()
 
@@ -73,7 +73,7 @@ class alarmController {
         coffeeOffCron.start()
     }
 
-    static async _initCoffee() {
+    static async initCoffee() {
         // Temporary coffee machine power on command
         logger.log('Heating up the espresso machine :)')
         await mqttApi._query('coffee', 'set', {

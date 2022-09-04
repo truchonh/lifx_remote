@@ -7,13 +7,13 @@ class alarmRoute extends BaseRoute {
     static getRouter() {
         super.getRouter()
 
-        this.router.route('/')
-            .get(this.handlerFactory.makeHandler(this._get))
-            .put(this.handlerFactory.makeHandler(this._put))
-
         this.router.route('/coffee')
             .get(this.handlerFactory.makeHandler(this._getCoffeeState))
             .put(this.handlerFactory.makeHandler(this._setCoffeeState))
+
+        this.router.route('/')
+            .get(this.handlerFactory.makeHandler(this._get))
+            .put(this.handlerFactory.makeHandler(this._put))
 
         return this.router
     }
@@ -39,10 +39,10 @@ class alarmRoute extends BaseRoute {
     }
 
     static async _setCoffeeState(req, res) {
-        if (!req.body?.power) {
+        if (req.body?.power === true) {
+            await alarmCtrl.initCoffee()
+        } else{
             await alarmCtrl.stopCoffee()
-        } else {
-            res.status(400).send({ message: 'Only supports power off command.' })
         }
     }
 }
