@@ -112,7 +112,7 @@ class alarmController {
         logger.log(`Starting the alarm sequence !`)
 
         try {
-            await mqttApi.setColor('kitchen', {
+            await mqttApi.setColor('bedroom', {
                 power: 'ON',
                 color: {
                     brightness: 0,
@@ -134,7 +134,7 @@ class alarmController {
 
             let config = alarmUtil.calculateLightValue(sequence)
             logger.log(JSON.stringify(config, null, 4))
-            await mqttApi.setColor('kitchen', {
+            await mqttApi.setColor('bedroom', {
                 duration: 7 * 1000,
                 color: {
                     ...config
