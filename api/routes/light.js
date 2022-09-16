@@ -21,7 +21,7 @@ class lightRoute extends BaseRoute {
 
     static async _toggle(req, res) {
         if (alarmCtrl.isWakeUpSequenceRunning()) {
-            return res.status(401).end()
+            throw new Error(`Alarm sequence is running.`)
         }
 
         await mqttApi.setColor(req.params.device || defaultDevice, {
@@ -56,7 +56,7 @@ class lightRoute extends BaseRoute {
 
     static async _setState(req, res) {
         if (alarmCtrl.isWakeUpSequenceRunning()) {
-            return res.status(401).end()
+            throw new Error(`Alarm sequence is running.`)
         }
 
         await mqttApi.setColor(req.params.device || defaultDevice, {
