@@ -103,7 +103,7 @@ class alarmController {
         await fs_writeFile(path.join(__dirname, 'config.json'), configData)
     }
 
-    static _stopWakeSequence() {
+    static stopWakeSequence() {
         wakeUpSequenceCron && wakeUpSequenceCron.stop()
         wakeUpSequenceCron = null
     }
@@ -121,10 +121,10 @@ class alarmController {
             })
         } catch (err) {
             logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
-            this._stopWakeSequence()
+            this.stopWakeSequence()
         }
 
-        this._stopWakeSequence()
+        this.stopWakeSequence()
 
         wakeUpSequenceCron = new Cron('*/10 * * * * *', async () => {
             if (alarmUtil.isSequenceDone(sequence)) {

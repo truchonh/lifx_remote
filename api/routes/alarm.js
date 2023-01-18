@@ -19,6 +19,8 @@ class alarmRoute extends BaseRoute {
             .get(this.handlerFactory.makeHandler(this._getCoffeeState))
             .put(this.handlerFactory.makeHandler(this._setCoffeeState))
 
+        this.router.route('/cancel').get(this.handlerFactory.makeHandler(this._cancelAlarm));
+
         this.router.route('/')
             .get(this.handlerFactory.makeHandler(this._get))
             .put(this.handlerFactory.makeHandler(this._put))
@@ -40,6 +42,11 @@ class alarmRoute extends BaseRoute {
         } else {
             await alarmCtrl.setAlarmConfig(config)
         }
+    }
+
+    static async _cancelAlarm(req, res) {
+        alarmCtrl.stopWakeSequence();
+        await mqttApi.setPower('bedroom', { power: 'OFF' })
     }
 
     static async _getCoffeeState(req, res) {
