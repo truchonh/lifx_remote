@@ -198,9 +198,9 @@ __metadata:
   linkType: hard
 
 "cookiejar@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "cookiejar@npm:2.1.2"
-  checksum: 706cad1a56db51dfb13c1fef73dab8e7fabcfdfbe5d58d463139b4af1482603291832053cc85564bc998a05784956a6cf0ac667414a0a8d7765c65ed3ed42f3e
+  version: 2.1.4
+  resolution: "cookiejar@npm:2.1.4"
+  checksum: c4442111963077dc0e5672359956d6556a195d31cbb35b528356ce5f184922b99ac48245ac05ed86cf993f7df157c56da10ab3efdadfed79778a0d9b1b092d5b
   languageName: node
   linkType: hard
 
@@ -536,7 +536,6 @@ __metadata:
     cron: ^1.8.2
     express: ^4.17.1
     lodash: ^4.17.21
-    suncalc: ^1.9.0
     superagent: ^5.2.2
   languageName: unknown
   linkType: soft
@@ -945,13 +944,6 @@ __metadata:
   dependencies:
     safe-buffer: ~5.2.0
   checksum: 8417646695a66e73aefc4420eb3b84cc9ffd89572861fe004e6aeb13c7bc00e2f616247505d2dbbef24247c372f70268f594af7126f43548565c68c117bdeb56
-  languageName: node
-  linkType: hard
-
-"suncalc@npm:^1.9.0":
-  version: 1.9.0
-  resolution: "suncalc@npm:1.9.0"
-  checksum: 2062651663e47aa612f7195793146f924ced2d3cba0730ece1c4c77dbe8ac83c40fef8cee1c24a6f86b202c515c7c92dd549e0ed27e5df50bde5bb8b0d9ef40c
   languageName: node
   linkType: hard
 
