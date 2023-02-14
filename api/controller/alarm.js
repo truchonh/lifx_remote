@@ -111,7 +111,7 @@ class alarmController {
 
     static async _setAlarmConfig(config) {
         const configData = JSON.stringify(config)
-        await fs_writeFile(path.join(__dirname, 'config.json'), configData)
+        await fs_writeFile(path.join(__dirname, '..', '..', 'config.json'), configData)
     }
 
     static stopWakeSequence() {
