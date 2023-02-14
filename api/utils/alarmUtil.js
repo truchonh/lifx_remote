@@ -79,6 +79,25 @@ class alarmUtil {
 
         return nowMinutes >= sequenceMinutes
     }
+
+    static getEarlyWakeupConfig(originalConfig) {
+        const cronSplit = originalConfig.cron.split(' ')
+        const [minute, hour, day, month, weekDay] = cronSplit
+
+        const offset = (hour, offsetBy) => (parseInt(hour) + (24 + offsetBy)) % 24
+
+        return {
+            ...originalConfig,
+            cron: `${minute} ${offset(hour, -2)} ${day} ${month} ${weekDay}`,
+            sequence: originalConfig.sequence.map(unit => {
+                const [hour, minute] = unit.time.split(':')
+                return {
+                    ...unit,
+                    time: `${offset(hour, -2)}:${minute}`
+                }
+            })
+        };
+    }
 }
 
 module.exports = alarmUtil

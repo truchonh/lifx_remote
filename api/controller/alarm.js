@@ -1,4 +1,5 @@
 const mqttApi = require('../connectors/mqttApi')
+const weatherApi = require('../connectors/weatherApi');
 const logger = require('../utils/simpleLogger')
 const {CronJob: Cron} = require('cron')
 const _ = require('lodash')
@@ -55,12 +56,22 @@ class alarmController {
         logger.log('New alarm config: ')
         logger.log(JSON.stringify(config, null, 4))
 
+        const earlyWakeupCron = alarmUtil.getEarlyWakeupConfig(config);
         if (alarmCron) {
             alarmCron.stop()
         }
-        alarmCron = new Cron(config.cron, () => {
-            this.startWakeUpSequence(config.sequence)
-            this.initCoffee()
+        alarmCron = new Cron(earlyWakeupCron.cron, async () => {
+            const currentWeather = await weatherApi.getCurrentWeather();
+            // sun or some clouds outside
+            if ([800, 801].includes(currentWeather.id)) {
+                await this.startWakeUpSequence(earlyWakeupCron.sequence)
+                await this.initCoffee()
+            } else {
+                setTimeout(() => {
+                    this.startWakeUpSequence(config.sequence)
+                    this.initCoffee()
+                }, 2 * 60 * 60 * 1000)
+            }
         })
         alarmCron.start()
 
