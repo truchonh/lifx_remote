@@ -64,21 +64,27 @@ class alarmRoute extends BaseRoute {
     }
 
     static async _lightNotification(count = 1) {
-        const currentState = await mqttApi.getState('kitchen')
-        for (let i = 0; i < count; i++) {
-            const isAlreadyOn = currentState.power === 'ON' && currentState.color.brightness > 0.5;
-            await mqttApi.setColor('kitchen', {
-                color: { kelvin: 6500, brightness: 1 },
-                power: isAlreadyOn ? 'OFF' : 'ON',
-                duration: 0
-            })
-            await new Promise(resolve => setTimeout(resolve, 200))
-            await mqttApi.setColor('kitchen', {
-                color: currentState.color,
-                power: currentState.power,
-                duration: 0
-            })
-            await new Promise(resolve => setTimeout(resolve, 1000))
+        try {
+            const currentState = await mqttApi.getState('kitchen')
+            for (let i = 0; i < count; i++) {
+                const isAlreadyOn = currentState.power === 'ON' && currentState.color.brightness > 0.5;
+                await mqttApi.setColor('kitchen', {
+                    color: { kelvin: 6500, brightness: 1 },
+                    power: isAlreadyOn ? 'OFF' : 'ON',
+                    duration: 0
+                })
+                await new Promise(resolve => setTimeout(resolve, 200))
+                await mqttApi.setColor('kitchen', {
+                    color: currentState.color,
+                    power: currentState.power,
+                    duration: 0
+                })
+                await new Promise(resolve => setTimeout(resolve, 1000))
+            }
+        } catch (e) {
+            // Exceptions have to be handled here because the handlerFactory doesn't catch them from here.
+            // Just kinda do nothing for now. Surely future me will improve this some day. :)
+            console.warn(e)
         }
     }
 
