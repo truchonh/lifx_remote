@@ -17,6 +17,10 @@ let wakeUpSequenceCron = null
 let coffeeOnTimestamp = null
 
 class alarmController {
+    static get _configPath() {
+        return path.join(__dirname, '..', '..', 'config', 'config.json')
+    }
+
     static isWakeUpSequenceRunning() {
         return !!wakeUpSequenceCron
     }
@@ -41,7 +45,7 @@ class alarmController {
 
     static async getAlarmConfig() {
         try {
-            const configData = await fs_readFile(path.join(__dirname, 'config.json'))
+            const configData = await fs_readFile(this._configPath)
             return {
                 ...defaults.ALARM_CONFIG,
                 ...JSON.parse(configData)
@@ -111,7 +115,7 @@ class alarmController {
 
     static async _setAlarmConfig(config) {
         const configData = JSON.stringify(config)
-        await fs_writeFile(path.join(__dirname, '..', '..', 'config.json'), configData)
+        await fs_writeFile(this._configPath, configData)
     }
 
     static stopWakeSequence() {
