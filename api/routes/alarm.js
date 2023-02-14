@@ -67,7 +67,7 @@ class alarmRoute extends BaseRoute {
         try {
             const currentState = await mqttApi.getState('kitchen')
             for (let i = 0; i < count; i++) {
-                const isAlreadyOn = currentState.power === 'ON' && currentState.color.brightness > 0.5;
+                const isAlreadyOn = currentState.power === 'ON' && currentState.color.brightness > 0.5
                 await mqttApi.setColor('kitchen', {
                     color: { kelvin: 6500, brightness: 1 },
                     power: isAlreadyOn ? 'OFF' : 'ON',

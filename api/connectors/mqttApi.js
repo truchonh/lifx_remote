@@ -2,6 +2,8 @@ const mqtt = require('async-mqtt')
 const { xyBriToRgb } = require('cie-rgb-color-converter')
 const lightUtil = require('../utils/lightUtil')
 
+let _client = null;
+
 class mqttApi {
     static async getState(device) {
         const state = await this._query(device, 'get')
@@ -79,7 +81,7 @@ class mqttApi {
     }
 
     static async _subscribe(client, topic, closeOnResponse = true) {
-        const timeout = 5000
+        const timeout = 10000
         let hasResolved = false
 
         return new Promise(async (resolve, reject) => {
@@ -97,7 +99,12 @@ class mqttApi {
     }
 
     static async _getClient() {
-        return mqtt.connectAsync('mqtt://192.168.0.44:1883')
+        if (_client === null) {
+            _client = mqtt.connectAsync('mqtt://192.168.0.44:1883')
+            _client.on('error', (err) => console.error(err))
+            _client.on('close', (err) => console.warn('MQTT client closed.'))
+        }
+        return _client
     }
 }
 
