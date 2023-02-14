@@ -4,11 +4,6 @@ const logger = require('../utils/simpleLogger')
 const alarmUtil = require('../utils/alarmUtil')
 const mqttApi = require('../connectors/mqttApi')
 
-const COORDINATES = {
-    lon: 45.388534,
-    lat: -71.919342
-}
-
 class alarmRoute extends BaseRoute {
     static timeoutMap = new Map()
 
@@ -63,23 +58,25 @@ class alarmRoute extends BaseRoute {
             this.timeoutMap.set('45min', setTimeout(() => this._lightNotification(2), 1000*60*45))
             this.timeoutMap.set('50min', setTimeout(() => this._lightNotification(3), 1000*60*50))
             this.timeoutMap.set('shutdown', setTimeout(() => alarmCtrl.stopCoffee(), 1000*60*60))
-        } else{
+        } else {
             await alarmCtrl.stopCoffee()
         }
     }
 
     static async _lightNotification(count = 1) {
+        const currentState = await mqttApi.getState('kitchen')
         for (let i = 0; i < count; i++) {
+            const isAlreadyOn = currentState.power === 'ON' && currentState.color.brightness > 0.5;
             await mqttApi.setColor('kitchen', {
                 color: { kelvin: 6500, brightness: 1 },
-                power: 'ON',
-                duration: 200
+                power: isAlreadyOn ? 'OFF' : 'ON',
+                duration: 0
             })
             await new Promise(resolve => setTimeout(resolve, 200))
             await mqttApi.setColor('kitchen', {
-                color: { kelvin: 6500, brightness: 0 },
-                power: 'OFF',
-                duration: 150
+                color: currentState.color,
+                power: currentState.power,
+                duration: 0
             })
             await new Promise(resolve => setTimeout(resolve, 1000))
         }
