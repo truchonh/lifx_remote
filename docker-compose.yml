@@ -1,13 +1,5 @@
 version: '3.7'
 services:
-#  lifx:
-#    image: delfick/lifx-photons-interactor
-#    environment:
-#      - TZ=America/Montreal
-#    network_mode: host
-#    volumes:
-#      - ./config/:/project/config/
-
   api:
     build: .
     environment:
