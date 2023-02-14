@@ -1,6 +1,5 @@
 const superagent = require('superagent')
-
-const API_KEY = '50898f9bc0e85593a9c666c381b105eb';
+const config = require('../../config/config')
 
 class WeatherApi {
     /**
@@ -19,7 +18,7 @@ class WeatherApi {
             .get(`https://api.openweathermap.org/data/2.5/weather`)
             .query({
                 units: 'metric',
-                appid: API_KEY,
+                appid: config.weatherApiKey,
                 ...sherbrooke
             })
         return res.body?.weather[0] || {}
