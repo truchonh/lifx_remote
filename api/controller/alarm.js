@@ -12,7 +12,7 @@ const fs_readFile = util.promisify(fs.readFile)
 const fs_writeFile = util.promisify(fs.writeFile)
 
 let alarmCron = null
-let coffeeOffCron = null
+// let coffeeOffCron = null
 let wakeUpSequenceCron = null
 let coffeeOnTimestamp = null
 
@@ -30,7 +30,7 @@ class alarmController {
         if (!_.isEmpty(alarmConfig)) {
             alarmCron = new Cron(alarmConfig.cron, () => {
                 this.startWakeUpSequence(alarmConfig.sequence)
-                this.initCoffee()
+                // this.initCoffee()
             })
             alarmCron.start()
             logger.log('started the alarm cron:')
@@ -38,8 +38,8 @@ class alarmController {
 
             let cronSplit = alarmConfig.cron.split(' ')
             cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
-            coffeeOffCron = new Cron(cronSplit.join(' '), () => this.stopCoffee())
-            coffeeOffCron.start()
+            // coffeeOffCron = new Cron(cronSplit.join(' '), () => this.stopCoffee())
+            // coffeeOffCron.start()
         }
     }
 
@@ -69,11 +69,11 @@ class alarmController {
             // sun or some clouds outside
             if ([800, 801].includes(currentWeather.id)) {
                 await this.startWakeUpSequence(earlyWakeupCron.sequence)
-                await this.initCoffee()
+                // await this.initCoffee()
             } else {
                 setTimeout(() => {
                     this.startWakeUpSequence(config.sequence)
-                    this.initCoffee()
+                    // this.initCoffee()
                 }, 2 * 60 * 60 * 1000)
             }
         })
@@ -84,8 +84,8 @@ class alarmController {
         }
         let cronSplit = config.cron.split(' ')
         cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
-        coffeeOffCron = new Cron(cronSplit.join(' '), () => this.stopCoffee())
-        coffeeOffCron.start()
+        // coffeeOffCron = new Cron(cronSplit.join(' '), () => this.stopCoffee())
+        // coffeeOffCron.start()
     }
 
     static async initCoffee() {
@@ -126,18 +126,13 @@ class alarmController {
     static async startWakeUpSequence(sequence) {
         logger.log(`Starting the alarm sequence !`)
 
-        try {
-            await mqttApi.setColor('bedroom', {
-                power: 'ON',
-                color: {
-                    brightness: 0,
-                    kelvin: 100
-                }
-            })
-        } catch (err) {
-            logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
-            this.stopWakeSequence()
-        }
+        await this._trySetBedroomColor({
+            power: 'ON',
+            color: {
+                brightness: 0,
+                kelvin: 100
+            }
+        })
 
         this.stopWakeSequence()
 
@@ -149,7 +144,7 @@ class alarmController {
 
             let config = alarmUtil.calculateLightValue(sequence)
             logger.log(JSON.stringify(config, null, 4))
-            await mqttApi.setColor('bedroom', {
+            await this._trySetBedroomColor({
                 duration: 7 * 1000,
                 color: {
                     ...config
@@ -157,6 +152,15 @@ class alarmController {
             })
         })
         wakeUpSequenceCron.start()
+    }
+
+    static async _trySetBedroomColor(config) {
+        try {
+            await mqttApi.setColor('bedroom', config)
+        } catch (err) {
+            logger.error(JSON.stringify({ message: err.message, stack: err.stack }, null, 4))
+            this.stopWakeSequence()
+        }
     }
 }
 

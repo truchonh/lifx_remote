@@ -10,9 +10,9 @@ class alarmRoute extends BaseRoute {
     static getRouter() {
         super.getRouter()
 
-        this.router.route('/coffee')
-            .get(this.handlerFactory.makeHandler(this._getCoffeeState))
-            .put(this.handlerFactory.makeHandler(this._setCoffeeState))
+        // this.router.route('/coffee')
+        //     .get(this.handlerFactory.makeHandler(this._getCoffeeState))
+        //     .put(this.handlerFactory.makeHandler(this._setCoffeeState))
 
         this.router.route('/cancel').get(this.handlerFactory.makeHandler(this._cancelAlarm));
 
@@ -44,10 +44,12 @@ class alarmRoute extends BaseRoute {
         await mqttApi.setPower('bedroom', { power: 'OFF' })
     }
 
+    // deprecated
     static async _getCoffeeState(req, res) {
         return alarmCtrl.getCoffeeState()
     }
 
+    // deprecated
     static async _setCoffeeState(req, res) {
         this._clearCoffeeAlarmReminders()
 
@@ -65,9 +67,9 @@ class alarmRoute extends BaseRoute {
 
     static async _lightNotification(count = 1) {
         try {
-            const currentState = await mqttApi.getState('kitchen')
+            // const currentState = await mqttApi.getState('kitchen')
             for (let i = 0; i < count; i++) {
-                const isAlreadyOn = currentState.power === 'ON' && currentState.color.brightness > 0.5
+                // const isAlreadyOn = currentState.power === 'ON' && currentState.color.brightness > 0.5
                 await mqttApi.setColor('kitchen', {
                     color: { kelvin: 6500, brightness: 1 },
                     power: isAlreadyOn ? 'OFF' : 'ON',

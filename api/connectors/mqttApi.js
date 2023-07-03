@@ -75,24 +75,23 @@ class mqttApi {
         const client = await this._getClient()
 
         const responsePromise = this._subscribe(client, topic)
-        await client.publish(`zigbee2mqtt/${topic}/${verb}`, JSON.stringify(payload))
+        client.publish(`zigbee2mqtt/${topic}/${verb}`, JSON.stringify(payload))
         const response = await responsePromise
         return JSON.parse(response || '{}')
     }
 
-    static async _subscribe(client, topic, closeOnResponse = true) {
-        const timeout = 10000
-        let hasResolved = false
+    static async _subscribe(client, topic) {
+        const timeout = 5_000
+        let isDone = false
 
         return new Promise(async (resolve, reject) => {
             setTimeout(() => {
-                !hasResolved && reject(new Error(`subscribe response has timed out. (${timeout}ms)`))
-                hasResolved = true
+                !isDone && reject(new Error(`subscribe response has timed out. (${timeout}ms)`))
+                isDone = true
             }, timeout)
             client.on('message', async (_topic, message) => {
-                closeOnResponse && await client.end()
-                !hasResolved && resolve(message.toString())
-                hasResolved = true
+                !isDone && resolve(message.toString())
+                isDone = true
             })
             await client.subscribe(`zigbee2mqtt/${topic}`)
         })
@@ -100,9 +99,9 @@ class mqttApi {
 
     static async _getClient() {
         if (_client === null) {
-            _client = mqtt.connectAsync('mqtt://192.168.0.44:1883')
+            _client = await mqtt.connectAsync('mqtt://192.168.0.44:1883')
             _client.on('error', (err) => console.error(err))
-            _client.on('close', (err) => console.warn('MQTT client closed.'))
+            _client.on('close', () => console.warn('MQTT client closed.'))
         }
         return _client
     }
