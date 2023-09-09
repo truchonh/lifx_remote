@@ -6,7 +6,7 @@ let _client = null;
 
 class mqttApi {
     static async getState(device) {
-        const state = await this._query(device, 'get')
+        const state = await this._query(device, 'get', { state: '' })
         if (state) {
             return {
                 power: state.state,
@@ -22,7 +22,7 @@ class mqttApi {
     }
 
     /**
-     * Turn the light on or of
+     * Turn the light on or off
      * @param {string} device
      * @param {'OFF'|'ON'|'TOGGLE'} power
      * @param {number} [duration] Duration in ms
@@ -101,7 +101,7 @@ class mqttApi {
         if (_client === null) {
             _client = await mqtt.connectAsync('mqtt://192.168.0.44:1883')
             _client.on('error', (err) => console.error(err))
-            _client.on('close', () => console.warn('MQTT client closed.'))
+            _client.on('close', (err) => console.warn('MQTT client closed.'))
         }
         return _client
     }
