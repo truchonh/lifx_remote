@@ -117,7 +117,7 @@ export default {
       this.hostname = localStorage.getItem('hostname') || '192.168.0.32:9999'
       const result = await lightApi.getState({ device: this.deviceName })
       if (result.isSuccess) {
-        const state = result.body.state
+        const state = result.body
         // display stuff
         this.state = state.power
         this.brightness = state.color.brightness * 100
