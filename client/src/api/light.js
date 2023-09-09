@@ -7,9 +7,10 @@ export default {
         return `http://${hostname}`
     },
 
-    async getState() {
+    async getState(config) {
+        const device = '/' + config.device || ''
         try {
-            const res = await superagent('GET', `${this._hostname}/api/state`)
+            const res = await superagent('GET', `${this._hostname}/api/state${device}`)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)
@@ -17,8 +18,9 @@ export default {
     },
 
     async setState(config) {
+        const device = '/' + config.device || ''
         try {
-            const res = await superagent('PUT', `${this._hostname}/api/state`).send(config)
+            const res = await superagent('PUT', `${this._hostname}/api/state${device}`).send(config)
             return new ApiResult(res)
         } catch (err) {
             return this._handleError(err)

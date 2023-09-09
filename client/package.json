@@ -23,6 +23,7 @@
     "cordova-serve-osx": "cross-env CORDOVA_PLATFORM=osx vue-cli-service cordova-serve-osx"
   },
   "dependencies": {
+    "cross-env": "^7.0.3",
     "kelvin-to-rgb": "^1.0.2",
     "lodash": "^4.17.21",
     "superagent": "^5.2.2",

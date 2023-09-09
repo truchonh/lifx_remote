@@ -2,7 +2,7 @@
   <v-app>
     <div>
       <v-app-bar dense>
-        <v-toolbar-title>Lumière Lifx</v-toolbar-title>
+        <v-toolbar-title>Lumière intelligente</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="refresh">
           <v-icon>{{ mdiRefresh }}</v-icon>

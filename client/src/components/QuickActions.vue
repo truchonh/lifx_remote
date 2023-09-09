@@ -17,22 +17,27 @@
           @change="updateTemperature"
           :color="temperatureColor"
       />
-
+      Luminosité {{ this.brightness }}%
+      <v-slider
+              v-model="brightness"
+              :disabled="!state"
+              :min="1"
+              :max="100"
+              thumb-label
+              @change="updateBrightness"
+              :color="brightnessColor"
+      />
       <v-checkbox
           v-model="isTempLinkedToBrightness"
           label="Lier la température à luminosité"
       />
-
-      Luminosité {{ this.brightness }}%
-      <v-slider
-          v-model="brightness"
-          :disabled="!state"
-          :min="1"
-          :max="100"
-          thumb-label
-          @change="updateBrightness"
-          :color="brightnessColor"
-      />
+      <v-select
+          v-model="selectedDevice"
+          @change="fetchConfig()"
+          :items="DeviceSelect"
+          filled
+          label="Zone"
+      ></v-select>
 
       <v-row justify="center">
         <v-switch
@@ -66,6 +71,7 @@ import kelvinToRgb from 'kelvin-to-rgb'
 import { mdiLightbulbOn, mdiLightbulbOff } from '@mdi/js'
 import lightApi from '../api/light'
 import { mapActions } from 'vuex'
+import { DeviceSelect } from '@/model/constants'
 
 export default {
   name: 'QuickActions',
@@ -80,6 +86,7 @@ export default {
       toggleLoading: false,
 
       isTempLinkedToBrightness: true,
+      deviceName: '',
 
       hostname: '',
     }
@@ -93,13 +100,22 @@ export default {
     brightnessColor() {
       const hexValue = this.brightness / 100 * 255
       return `rgb(${hexValue},${hexValue},${hexValue})`
-    }
+    },
+    selectedDevice: {
+      get() {
+        return Object.keys(DeviceSelect).find(key => DeviceSelect[key] === this.deviceName)
+      },
+      set(value) {
+        this.deviceName = DeviceSelect[value]
+        localStorage.setItem('deviceName', this.deviceName)
+      }
+    },
   },
 
   methods: {
     async fetchConfig() {
       this.hostname = localStorage.getItem('hostname') || '192.168.0.32:9999'
-      const result = await lightApi.getState()
+      const result = await lightApi.getState({ device: this.deviceName })
       if (result.isSuccess) {
         const state = result.body.state
         // display stuff
@@ -114,6 +130,7 @@ export default {
         this.temperature = 100 + (this.brightness * 64)
       }
       this.setLightState({
+        device: this.deviceName,
         power: this.state,
         color: {
           brightness: this.brightness / 100,
@@ -127,6 +144,7 @@ export default {
         this.brightness = (this.temperature - 100) / 64
       }
       this.setLightState({
+        device: this.deviceName,
         power: this.state,
         color: {
           brightness: this.brightness / 100,
@@ -139,6 +157,7 @@ export default {
       this.toggleLoading = true
 
       await this.setLightState({
+        device: this.deviceName,
         power: this.state,
         color: {
           brightness: this.brightness / 100,
@@ -159,6 +178,8 @@ export default {
   },
 
   created() {
+    this.DeviceSelect = Object.keys(DeviceSelect)
+    this.deviceName = localStorage.getItem('deviceName') || ''
     this.fetchConfig()
   }
 }
