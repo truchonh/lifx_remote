@@ -20,7 +20,7 @@ class lightRoute extends BaseRoute {
     }
 
     static async _toggle(req, res) {
-        if (alarmCtrl.isWakeUpSequenceRunning()) {
+        if (req.params.device === 'bedroom' && alarmCtrl.isWakeUpSequenceRunning()) {
             throw new Error(`Alarm sequence is running.`)
         }
 
@@ -55,7 +55,7 @@ class lightRoute extends BaseRoute {
     }
 
     static async _setState(req, res) {
-        if (alarmCtrl.isWakeUpSequenceRunning()) {
+        if (req.params.device === 'bedroom' && alarmCtrl.isWakeUpSequenceRunning()) {
             throw new Error(`Alarm sequence is running.`)
         }
 

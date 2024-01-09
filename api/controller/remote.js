@@ -24,7 +24,11 @@ async function handleRemoteMessage(message) {
             })
             break
         case 'up_press_release':
-            // bathroom ?
+            await mqttApi.setColor('bedroom', {
+                ...lightValueTimeMap[new Date().getHours()],
+                duration: 250,
+                power: 'TOGGLE',
+            })
             break
         case 'down_press_release':
             await mqttApi.setColor('night_lights', {
