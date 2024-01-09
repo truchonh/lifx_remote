@@ -90,8 +90,10 @@ class mqttApi {
                 isDone = true
             }, timeout)
             client.on('message', async (_topic, message) => {
-                !isDone && resolve(message.toString())
-                isDone = true
+                if (_topic.includes(topic)) {
+                    !isDone && resolve(message.toString())
+                    isDone = true
+                }
             })
             await client.subscribe(`zigbee2mqtt/${topic}`)
         })
@@ -99,11 +101,21 @@ class mqttApi {
 
     static async _getClient() {
         if (_client === null) {
-            _client = await mqtt.connectAsync('mqtt://192.168.0.44:1883')
+            _client = await mqtt.connectAsync('mqtt://server.lan:1883')
             _client.on('error', (err) => console.error(err))
             _client.on('close', (err) => console.warn('MQTT client closed.'))
         }
         return _client
+    }
+
+    static async listenToRemote(topic, onMessage) {
+        const client = await this._getClient()
+        client.on('message', async (_topic, message) => {
+            if (_topic.includes(topic)) {
+                onMessage(message.toString());
+            }
+        })
+        await client.subscribe(`zigbee2mqtt/${topic}`)
     }
 }
 
