@@ -65,6 +65,10 @@ class lightUtil {
 
         return Math.round(((MAX_KELVIN - colorKelvin) / conversionRatio) + MAX_TEMP)
     }
+
+    static toReciprocalMegakelvin(kelvin) {
+        return 1000000 / kelvin;
+    }
 }
 
 module.exports = lightUtil

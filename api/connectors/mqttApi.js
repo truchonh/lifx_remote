@@ -52,10 +52,10 @@ class mqttApi {
             brightness: brightness * 254,
             transition: duration / 1000
         }
-        if (kelvin && kelvin >= 2000) {
-            config.color_temp = lightUtil.convertToMqtt(kelvin)
+        if (kelvin && kelvin >= 2200) {
+            config.color_temp = lightUtil.toReciprocalMegakelvin(kelvin)
         }
-        if (kelvin && kelvin < 2000) {
+        if (kelvin && kelvin < 2200) {
             config.color = lightUtil.kelvinToRgb(kelvin + 400)
         } else {
             config.color = rgb
