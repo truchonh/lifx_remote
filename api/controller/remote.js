@@ -1,6 +1,7 @@
 const mqttApi = require('../connectors/mqttApi')
 const { lightValueTimeMap } = require('../../config/config')
 const lightUtil = require('../utils/lightUtil')
+const simpleLogger = require('../utils/simpleLogger')
 
 const TEMP_MIN = 2204
 const TEMP_MAX = 4000
@@ -8,7 +9,9 @@ const DIMMER_STEP = 0.1
 
 module.exports.remoteHandler = class {
     constructor(mainDevice, secondaryDevice) {
-        mqttApi.listenToRemote('main_switch', (message) => handleRemoteMessage(message, mainDevice, secondaryDevice))
+        mqttApi.listenToRemote('main_switch', (message) => {
+            handleRemoteMessage(message, mainDevice, secondaryDevice).catch(err => simpleLogger.error(err))
+        })
     }
 }
 module.exports.commands = {
@@ -22,7 +25,7 @@ const recentLightStateMap = new Map()
 let holdCounter = 0
 async function handleRemoteMessage(message, mainDevice, secondaryDevice) {
     const data = JSON.parse(message || '{}')
-    data.action && console.log(data.action)
+    // data.action && console.log(data.action)
 
     switch (data?.action) {
     // ON button

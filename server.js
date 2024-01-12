@@ -17,7 +17,7 @@ class api {
 
         // restart the alarm cron, if its enabled
         await alarmCtrl.restartCron()
-        new remoteHandler('kitchen')
+        new remoteHandler('kitchen', 'bedroom')
 
         app.use('/api/alarm', require('./api/routes/alarm').getRouter())
         app.use('/api', require('./api/routes/light').getRouter())
