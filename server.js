@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const logger = require('./api/utils/simpleLogger')
 const alarmCtrl = require('./api/controller/alarm')
-const remoteCtrl = require('./api/controller/remote')
+const { remoteHandler, commands } = require('./api/controller/remote')
 
 class api {
     static async start() {
@@ -17,7 +17,7 @@ class api {
 
         // restart the alarm cron, if its enabled
         await alarmCtrl.restartCron()
-        await remoteCtrl.start()
+        new remoteHandler('kitchen')
 
         app.use('/api/alarm', require('./api/routes/alarm').getRouter())
         app.use('/api', require('./api/routes/light').getRouter())

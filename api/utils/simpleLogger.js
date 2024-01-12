@@ -9,14 +9,14 @@ const dateFormat = {
 };
 
 class SimpleLogger {
-    static log(message) {
+    static log(message, ...otherMessages) {
         let timestamp = new Date().toLocaleString('fr-CA', dateFormat);
-        console.log(timestamp + ' ' + message);
+        console.log(timestamp + ' ' + message, ...(otherMessages || []));
     }
 
-    static error(message) {
+    static error(message, ...otherMessages) {
         let timestamp = new Date().toLocaleString('fr-CA', dateFormat);
-        console.error(timestamp + ' ' + message);
+        console.error(timestamp + ' ' + message, ...(otherMessages || []));
     }
 }
 module.exports = SimpleLogger;

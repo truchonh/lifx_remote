@@ -1,8 +1,10 @@
 const mqtt = require('async-mqtt')
 const { xyBriToRgb } = require('cie-rgb-color-converter')
 const lightUtil = require('../utils/lightUtil')
+const simpleLogger = require('../utils/simpleLogger')
 
-let _client = null;
+let _client = null
+let messageCallback = null
 
 class mqttApi {
     static async getState(device) {
@@ -12,7 +14,7 @@ class mqttApi {
                 power: state.state,
                 color: {
                     brightness: state.brightness / 254,
-                    kelvin: lightUtil.convertToKelvin(state.color_temp),
+                    kelvin: lightUtil.toReciprocalMegakelvin(state.color_temp),
                     rgb: xyBriToRgb(state.color.x, state.color.y, state.brightness)
                 }
             }
@@ -74,10 +76,14 @@ class mqttApi {
     static async _query(topic, verb, payload = {}) {
         const client = await this._getClient()
 
-        const responsePromise = this._subscribe(client, topic)
-        client.publish(`zigbee2mqtt/${topic}/${verb}`, JSON.stringify(payload))
-        const response = await responsePromise
-        return JSON.parse(response || '{}')
+        try {
+            const responsePromise = this._subscribe(client, topic)
+            client.publish(`zigbee2mqtt/${topic}/${verb}`, JSON.stringify(payload))
+            const response = await responsePromise
+            return JSON.parse(response || '{}')
+        } finally {
+            messageCallback = null
+        }
     }
 
     static async _subscribe(client, topic) {
@@ -89,12 +95,12 @@ class mqttApi {
                 !isDone && reject(new Error(`subscribe response has timed out. (${timeout}ms)`))
                 isDone = true
             }, timeout)
-            client.on('message', async (_topic, message) => {
+            messageCallback = async (_topic, message) => {
                 if (_topic.includes(topic)) {
                     !isDone && resolve(message.toString())
                     isDone = true
                 }
-            })
+            }
             await client.subscribe(`zigbee2mqtt/${topic}`)
         })
     }
@@ -102,10 +108,17 @@ class mqttApi {
     static async _getClient() {
         if (_client === null) {
             _client = await mqtt.connectAsync('mqtt://server.lan:1883')
-            _client.on('error', (err) => console.error(err))
-            _client.on('close', (err) => console.warn('MQTT client closed.'))
+            _client.on('error', (err) => simpleLogger.error('MQTT client error:', err))
+            _client.on('close', () => simpleLogger.log('MQTT client closed.'))
+            _client.on('message', (topic, message) => this._onMessage(topic, message))
         }
         return _client
+    }
+
+    static _onMessage(topic, message) {
+        if (messageCallback) {
+            messageCallback(topic, message)
+        }
     }
 
     static async listenToRemote(topic, onMessage) {

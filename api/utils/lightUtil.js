@@ -31,43 +31,25 @@ class lightUtil {
         }
     }
 
-    /**
-     * mqtt saved temperature in a value between 0-500. A high number means a low kelvin value.
-     * @param colorTemp
-     */
-    static convertToKelvin(colorTemp) {
-        if (colorTemp > 500) {
-            colorTemp = 500
-        } else if (colorTemp < 154) {
-            colorTemp = 154
-        }
-
-        // The Sengled light support 154-500 (2000k to 6500k)
-        const MIN_TEMP = 500
-        const MIN_KELVIN = 2000
-        const MAX_KELVIN = 6500
-        const conversionRatio = MAX_KELVIN / MIN_TEMP
-
-        return ((MIN_TEMP - colorTemp) * conversionRatio) + MIN_KELVIN
-    }
-
-    static convertToMqtt(colorKelvin) {
-        if (colorKelvin > 6500) {
-            colorKelvin = 6500
-        } else if (colorKelvin < 2000) {
-            colorKelvin = 2000
-        }
-
-        const MIN_TEMP = 500
-        const MAX_TEMP = 154
-        const MAX_KELVIN = 6500
-        const conversionRatio = MAX_KELVIN / MIN_TEMP
-
-        return Math.round(((MAX_KELVIN - colorKelvin) / conversionRatio) + MAX_TEMP)
-    }
-
     static toReciprocalMegakelvin(kelvin) {
         return 1000000 / kelvin;
+    }
+
+    static logarithmicColorScale(value, kelvinMin, kelvinMax) {
+        const N = 2
+        return {
+            brightness: Math.log((Math.max(0, value) * N) + 1) / Math.log(N + 1),
+            kelvin: (value * (kelvinMax - kelvinMin)) + kelvinMin
+        }
+    }
+
+    static exponentialColorScale(value, kelvinMin, kelvinMax) {
+        const N = 20
+        const expValue = (Math.pow(N + 1, Math.max(0, value)) - 1) / N
+        return {
+            brightness: value,
+            kelvin: (expValue * (kelvinMax - kelvinMin)) + kelvinMin
+        }
     }
 }
 
