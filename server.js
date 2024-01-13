@@ -3,7 +3,8 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const logger = require('./api/utils/simpleLogger')
 const alarmCtrl = require('./api/controller/alarm')
-const { remoteHandler, commands, presetFunctions } = require('./api/controller/remote')
+const { initRemoteController } = require('./api/controller/remote')
+const { presetFunctions, commands } = require('./api/utils/remoteConfig')
 
 class api {
     static async start() {
@@ -17,7 +18,7 @@ class api {
 
         // restart the alarm cron, if its enabled
         await alarmCtrl.restartCron()
-        new remoteHandler('main_switch', {
+        await initRemoteController('main_switch', {
             on: {
                 press_release: {
                     name: commands.toggleWithLightColorMap,
