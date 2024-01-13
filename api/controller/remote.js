@@ -8,57 +8,54 @@ const TEMP_MAX = 4000
 const DIMMER_STEP = 0.1
 
 module.exports.remoteHandler = class {
-    constructor(mainDevice, secondaryDevice) {
-        mqttApi.listenToRemote('main_switch', (message) => {
-            handleRemoteMessage(message, mainDevice, secondaryDevice).catch(err => simpleLogger.error(err))
-        })
+    constructor(remoteName, config) {
+        mqttApi.listenToRemote(remoteName, (message) => {
+            handleRemoteMessage(message, config).catch(err => simpleLogger.error(err))
+        }).catch(err => simpleLogger.error(`Couldn't start listening on the remote mqtt queue: `, err))
     }
 }
-module.exports.commands = {
+
+const commands = {
     setNightLights: 'setNightLights',
     globalOff: 'globalOff',
     toggleWithLightColorMap: 'toggleWithLightColorMap',
     setMaxBrightness: 'setMaxBrightness',
 }
+module.exports.commands = commands
+
+const presetFunctions = {
+    dimmerUp: 'dimmerUp',
+    dimmerDown: 'dimmerDown',
+};
+module.exports.presetFunctions = presetFunctions
 
 const recentLightStateMap = new Map()
 let holdCounter = 0
-async function handleRemoteMessage(message, mainDevice, secondaryDevice) {
+async function handleRemoteMessage(message, config) {
     const data = JSON.parse(message || '{}')
-    // data.action && console.log(data.action)
 
-    switch (data?.action) {
-    // ON button
-        case 'on_press_release':
-            return await toggleWithLightColorMap(mainDevice)
-        case 'on_hold':
-            return await setMaxBrightness(mainDevice)
+    let [button, type, action] = data?.action?.split('_') || []
+    if (!button || !type || !config[button]) {
+        return
+    }
+    if (action) {
+        type = `${type}_${action}`;
+    }
+    console.log(button, type)
 
-    // UP button
-        case 'up_press_release':
-            return await setNightLights()
-        case 'up_press':
-            return await saveState(mainDevice)
-        case 'up_hold':
-            holdCounter++
-            return await setDimmerValue(mainDevice)
-        case 'up_hold_release':
-            return resetState(mainDevice)
+    const hasPreset = Object.values(presetFunctions).some(preset => config[button].hasOwnProperty(preset))
 
-    // DOWN button
-        case 'down_press_release':
-            return await globalOff()
-        case 'down_press':
-            return await saveState(mainDevice)
-        case 'down_hold':
-            holdCounter--
-            return await setDimmerValue(mainDevice)
-        case 'down_hold_release':
-            return resetState(mainDevice)
+    if (hasPreset) {
+        for (let preset of Object.values(presetFunctions).filter(preset => config[button].hasOwnProperty(preset))) {
+            console.log(preset)
+            const command = config[button][preset]
+            await remotePresetMap[preset](type, command.device)
+        }
+    }
 
-    // HUE button
-        case 'off_press_release':
-            return await toggleWithLightColorMap(secondaryDevice)
+    const command = config[button][type]
+    if (remoteCommandMap[command?.name]) {
+        await remoteCommandMap[command.name](command.arg)
     }
 }
 
@@ -133,4 +130,33 @@ async function setDimmerValue(device) {
         duration: 750,
         power: 'ON'
     })
+}
+
+const remotePresetMap = {
+    dimmerUp: dimmerUpHandler,
+    dimmerDown: dimmerDownHandler,
+}
+
+async function dimmerUpHandler(action, device) {
+    switch (action) {
+        case 'press':
+            return await saveState(device)
+        case 'hold':
+            holdCounter++
+            return await setDimmerValue(device)
+        case 'hold_release':
+            return resetState(device)
+    }
+}
+
+async function dimmerDownHandler(action, device) {
+    switch (action) {
+        case 'press':
+            return await saveState(device)
+        case 'hold':
+            holdCounter--
+            return await setDimmerValue(device)
+        case 'hold_release':
+            return resetState(device)
+    }
 }
