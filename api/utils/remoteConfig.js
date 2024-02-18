@@ -1,6 +1,7 @@
 const mqttApi = require('../connectors/mqttApi')
 const { lightValueTimeMap } = require('../../config/config')
 const lightUtil = require('./lightUtil')
+const alarmCtrl = require('../controller/alarm');
 
 const TEMP_MIN = 2204
 const TEMP_MAX = 4000
@@ -52,6 +53,7 @@ async function setNightLights() {
 }
 
 async function globalOff() {
+    alarmCtrl.stopWakeSequence();
     await mqttApi.setColor('all', {
         color: {},
         duration: 250,

@@ -60,28 +60,28 @@ class alarmController {
         logger.log('New alarm config: ')
         logger.log(JSON.stringify(config, null, 4))
 
-        const earlyWakeupCron = alarmUtil.getEarlyWakeupConfig(config);
+        // const earlyWakeupCron = alarmUtil.getEarlyWakeupConfig(config);
         if (alarmCron) {
             alarmCron.stop()
         }
-        alarmCron = new Cron(earlyWakeupCron.cron, async () => {
-            const currentWeather = await weatherApi.getCurrentWeather();
+        alarmCron = new Cron(config.cron, async () => {
+            // const currentWeather = await weatherApi.getCurrentWeather();
             // sun or some clouds outside
-            if ([800, 801].includes(currentWeather.id)) {
-                await this.startWakeUpSequence(earlyWakeupCron.sequence)
-                // await this.initCoffee()
-            } else {
+            // if ([800, 801].includes(currentWeather.id)) {
+            //     await this.startWakeUpSequence(earlyWakeupCron.sequence)
+            //     // await this.initCoffee()
+            // } else {
                 setTimeout(() => {
                     this.startWakeUpSequence(config.sequence)
                     // this.initCoffee()
                 }, 2 * 60 * 60 * 1000)
-            }
+            // }
         })
         alarmCron.start()
 
-        if (coffeeOffCron) {
-            coffeeOffCron.stop()
-        }
+        // if (coffeeOffCron) {
+        //     coffeeOffCron.stop()
+        // }
         let cronSplit = config.cron.split(' ')
         cronSplit[1] = (parseInt(cronSplit[1]) + 8) % 24
         // coffeeOffCron = new Cron(cronSplit.join(' '), () => this.stopCoffee())

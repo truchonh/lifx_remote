@@ -24,7 +24,6 @@ async function handleRemoteMessage(message, config) {
     }
 
     const hasPreset = Object.values(presetFunctions).some(preset => config[button].hasOwnProperty(preset))
-
     if (hasPreset) {
         for (let preset of Object.values(presetFunctions).filter(preset => config[button].hasOwnProperty(preset))) {
             const command = config[button][preset]
