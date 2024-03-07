@@ -38,17 +38,43 @@ class api {
                 },
             },
             down: {
-                press_release: {
-                    name: commands.globalOff,
-                },
                 [presetFunctions.dimmerDown]: {
                     device: 'kitchen'
                 },
             },
             off: {
                 press_release: {
+                    name: commands.globalOff,
+                },
+            },
+        })
+        await initRemoteController('bedroom_switch', {
+            on: {
+                press_release: {
                     name: commands.toggleWithLightColorMap,
                     arg: 'bedroom',
+                },
+                hold: {
+                    name: commands.setMaxBrightness,
+                    arg: 'bedroom',
+                },
+            },
+            up: {
+                press_release: {
+                    name: commands.setNightLights,
+                },
+                [presetFunctions.dimmerUp]: {
+                    device: 'bedroom'
+                },
+            },
+            down: {
+                [presetFunctions.dimmerDown]: {
+                    device: 'bedroom'
+                },
+            },
+            off: {
+                press_release: {
+                    name: commands.globalOff,
                 },
             },
         })
