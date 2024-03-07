@@ -43,7 +43,7 @@ class api {
                 },
             },
             off: {
-                press_release: {
+                hold: {
                     name: commands.globalOff,
                 },
             },
@@ -74,6 +74,10 @@ class api {
             },
             off: {
                 press_release: {
+                    name: commands.toggleSwitch,
+                    arg: 'terrarium_light',
+                },
+                hold: {
                     name: commands.globalOff,
                 },
             },

@@ -39,6 +39,18 @@ class mqttApi {
     }
 
     /**
+     * @param {string} device
+     * @param {'OFF'|'ON'|'TOGGLE'} power
+     * @returns {Promise<boolean>}
+     */
+    static async setSwitchState(device, { power }) {
+        await this._query(device, 'set', {
+            state: power,
+        })
+        return true
+    }
+
+    /**
      * Set the color. This command does NOT turn on the light implicitly
      * @param {string} device
      * @param {'OFF'|'ON'|'TOGGLE'} power
@@ -96,7 +108,8 @@ class mqttApi {
                 isDone = true
             }, timeout)
             messageCallback = async (_topic, message) => {
-                if (_topic.includes(topic)) {
+                const topicSections = _topic.split('/')
+                if (topicSections.includes(topic)) {
                     !isDone && resolve(message.toString())
                     isDone = true
                 }

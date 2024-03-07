@@ -3,8 +3,16 @@ const { lightValueTimeMap } = require('../../config/config')
 const lightUtil = require('./lightUtil')
 const alarmCtrl = require('../controller/alarm');
 
-const TEMP_MIN = 2204
-const TEMP_MAX = 4000
+const DEVICE_CONFIG = {
+    bedroom: {
+        TEMP_MIN: 2010,
+        TEMP_MAX: 5000
+    },
+    kitchen: {
+        TEMP_MIN: 2204,
+        TEMP_MAX: 4000
+    }
+};
 const DIMMER_STEP = 0.1
 
 const recentLightStateMap = new Map()
@@ -15,6 +23,7 @@ const commands = {
     globalOff: 'globalOff',
     toggleWithLightColorMap: 'toggleWithLightColorMap',
     setMaxBrightness: 'setMaxBrightness',
+    toggleSwitch: 'toggleSwitch',
 }
 module.exports.commands = commands
 
@@ -30,6 +39,7 @@ const remoteCommandMap = {
     globalOff,
     toggleWithLightColorMap,
     setMaxBrightness,
+    toggleSwitch
 }
 module.exports.remoteCommandMap = remoteCommandMap
 
@@ -69,9 +79,13 @@ async function toggleWithLightColorMap(device) {
     })
 }
 
+async function toggleSwitch(device) {
+    await mqttApi.setSwitchState(device, { power: 'TOGGLE' })
+}
+
 async function setMaxBrightness(device) {
     await mqttApi.setColor(device, {
-        color: { brightness: 1, kelvin: TEMP_MAX },
+        color: { brightness: 1, kelvin: DEVICE_CONFIG[device].TEMP_MAX },
         duration: 250,
         power: 'ON',
     })
@@ -93,11 +107,14 @@ async function setDimmerValue(device) {
         return
     }
 
-    const relativeTemperature = (baseState.kelvin - TEMP_MIN) / (TEMP_MAX - TEMP_MIN)
+    const tempMin = DEVICE_CONFIG[device].TEMP_MIN;
+    const tempMax = DEVICE_CONFIG[device].TEMP_MAX;
+
+    const relativeTemperature = (baseState.kelvin - tempMin) / (tempMax - tempMin)
     const color = lightUtil.logarithmicColorScale(
         Math.max(0.01, Math.min(relativeTemperature + (DIMMER_STEP * holdCounter), 1)),
-        TEMP_MIN,
-        TEMP_MAX
+        tempMin,
+        tempMax
     )
     await mqttApi.setColor(device, {
         color,
