@@ -21,7 +21,7 @@ let holdCounter = 0
 const commands = {
     setNightLights: 'setNightLights',
     globalOff: 'globalOff',
-    toggleWithLightColorMap: 'toggleWithLightColorMap',
+    setWithLightColorMap: 'setWithLightColorMap',
     setMaxBrightness: 'setMaxBrightness',
     toggleSwitch: 'toggleSwitch',
 }
@@ -37,7 +37,7 @@ module.exports.presetFunctions = presetFunctions
 const remoteCommandMap = {
     setNightLights,
     globalOff,
-    toggleWithLightColorMap,
+    setWithLightColorMap,
     setMaxBrightness,
     toggleSwitch
 }
@@ -71,11 +71,11 @@ async function globalOff() {
     })
 }
 
-async function toggleWithLightColorMap(device) {
+async function setWithLightColorMap({ device, power }) {
     await mqttApi.setColor(device, {
         ...lightValueTimeMap[new Date().getHours()],
         duration: 250,
-        power: 'TOGGLE',
+        power: power,
     })
 }
 

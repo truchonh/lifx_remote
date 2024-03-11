@@ -21,8 +21,8 @@ class api {
         await initRemoteController('main_switch', {
             on: {
                 press_release: {
-                    name: commands.toggleWithLightColorMap,
-                    arg: 'kitchen',
+                    name: commands.setWithLightColorMap,
+                    arg: { device: 'kitchen', power: 'TOGGLE' },
                 },
                 hold: {
                     name: commands.setMaxBrightness,
@@ -51,8 +51,8 @@ class api {
         await initRemoteController('bedroom_switch', {
             on: {
                 press_release: {
-                    name: commands.toggleWithLightColorMap,
-                    arg: 'bedroom',
+                    name: commands.setWithLightColorMap,
+                    arg: { device: 'bedroom', power: 'TOGGLE' },
                 },
                 hold: {
                     name: commands.setMaxBrightness,
@@ -61,13 +61,17 @@ class api {
             },
             up: {
                 press_release: {
-                    name: commands.setNightLights,
+                    name: commands.setWithLightColorMap,
+                    arg: { device: 'kitchen', power: 'ON' },
                 },
                 [presetFunctions.dimmerUp]: {
                     device: 'bedroom'
                 },
             },
             down: {
+                press_release: {
+                    name: commands.setNightLights,
+                },
                 [presetFunctions.dimmerDown]: {
                     device: 'bedroom'
                 },
