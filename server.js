@@ -38,6 +38,9 @@ class api {
                 },
             },
             down: {
+                press_release: {
+                    name: commands.setNightLights,
+                },
                 [presetFunctions.dimmerDown]: {
                     device: 'kitchen'
                 },
@@ -60,17 +63,14 @@ class api {
                 },
             },
             up: {
-                press_release: {
-                    name: commands.setWithLightColorMap,
-                    arg: { device: 'kitchen', power: 'ON' },
-                },
                 [presetFunctions.dimmerUp]: {
                     device: 'bedroom'
                 },
             },
             down: {
                 press_release: {
-                    name: commands.setNightLights,
+                    name: commands.setWithLightColorMap,
+                    arg: { device: 'kitchen', power: 'ON' },
                 },
                 [presetFunctions.dimmerDown]: {
                     device: 'bedroom'
