@@ -48,7 +48,7 @@ class alarmController {
             const configData = await fs_readFile(this._configPath)
             return {
                 ...defaults.ALARM_CONFIG,
-                ...JSON.parse(configData)
+                //...JSON.parse(configData)
             }
         } catch (err) {
             return {}
