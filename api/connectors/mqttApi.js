@@ -15,7 +15,7 @@ class mqttApi {
                 color: {
                     brightness: state.brightness / 254,
                     kelvin: lightUtil.toReciprocalMegakelvin(state.color_temp),
-                    rgb: xyBriToRgb(state.color.x, state.color.y, state.brightness)
+                    rgb: state.color ? xyBriToRgb(state.color.x, state.color.y, state.brightness) : {}
                 }
             }
         } else {
