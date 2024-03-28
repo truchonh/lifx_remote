@@ -5,8 +5,11 @@ const alarmCtrl = require('../controller/alarm');
 
 const DEVICE_CONFIG = {
     bedroom: {
-        TEMP_MIN: 2010,
-        TEMP_MAX: 5000
+        // Sengled bulb
+        // TEMP_MIN: 2010,
+        // TEMP_MAX: 5000
+        TEMP_MIN: 2204,
+        TEMP_MAX: 4000
     },
     kitchen: {
         TEMP_MIN: 2204,
