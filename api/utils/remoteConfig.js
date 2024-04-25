@@ -5,16 +5,18 @@ const alarmCtrl = require('../controller/alarm');
 
 const DEVICE_CONFIG = {
     bedroom: {
-        // Sengled bulb
-        // TEMP_MIN: 2010,
-        // TEMP_MAX: 5000
         TEMP_MIN: 2204,
         TEMP_MAX: 4000
     },
     kitchen: {
         TEMP_MIN: 2204,
         TEMP_MAX: 4000
-    }
+    },
+    bathroom: {
+        // Sengled bulb
+        TEMP_MIN: 2010,
+        TEMP_MAX: 5000
+    },
 };
 const DIMMER_STEP = 0.1
 
@@ -63,6 +65,11 @@ async function setNightLights() {
         duration: 250,
         power: 'ON'
     })
+    await mqttApi.setColor('bathroom', {
+        color: { brightness: 0.01, kelvin: 1500 },
+        duration: 250,
+        power: 'ON'
+    })
 }
 
 async function globalOff() {
@@ -86,11 +93,11 @@ async function toggleSwitch(device) {
     await mqttApi.setSwitchState(device, { power: 'TOGGLE' })
 }
 
-async function setMaxBrightness(device) {
+async function setMaxBrightness({ device, power = 'ON' }) {
     await mqttApi.setColor(device, {
         color: { brightness: 1, kelvin: DEVICE_CONFIG[device].TEMP_MAX },
         duration: 250,
-        power: 'ON',
+        power: power,
     })
 }
 

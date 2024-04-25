@@ -17,7 +17,8 @@ class api {
         app.use(express.static(path.join(__dirname, 'client', 'dist')))
 
         // restart the alarm cron, if its enabled
-        await alarmCtrl.restartCron()
+        // await alarmCtrl.restartCron()
+
         await initRemoteController('main_switch', {
             on: {
                 press_release: {
@@ -26,7 +27,7 @@ class api {
                 },
                 hold: {
                     name: commands.setMaxBrightness,
-                    arg: 'kitchen',
+                    arg: { device: 'kitchen' },
                 },
             },
             up: {
@@ -47,6 +48,10 @@ class api {
                 },
             },
             off: {
+                press_release: {
+                    name: commands.setMaxBrightness,
+                    arg: { device: 'bathroom', power: 'TOGGLE' },
+                },
                 hold: {
                     name: commands.globalOff,
                 },
@@ -60,10 +65,14 @@ class api {
                 },
                 hold: {
                     name: commands.setMaxBrightness,
-                    arg: 'bedroom',
+                    arg: { device: 'bedroom' },
                 },
             },
             up: {
+                press_release: {
+                    name: commands.setWithLightColorMap,
+                    arg: { device: 'bedroom', power: 'ON' },
+                },
                 [presetFunctions.dimmerUp]: {
                     device: 'bedroom'
                 },
