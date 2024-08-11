@@ -2,7 +2,6 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const path = require('path')
 const logger = require('./api/utils/simpleLogger')
-const alarmCtrl = require('./api/controller/alarm')
 const { initRemoteController } = require('./api/controller/remote')
 const { presetFunctions, commands } = require('./api/utils/remoteConfig')
 
@@ -49,8 +48,8 @@ class api {
             },
             off: {
                 press_release: {
-                    name: commands.setMaxBrightness,
-                    arg: { device: 'bathroom', power: 'TOGGLE' },
+                    name: commands.toggleSwitch,
+                    arg: 'terrarium_light',
                 },
                 hold: {
                     name: commands.globalOff,
@@ -86,10 +85,6 @@ class api {
                 },
             },
             off: {
-                press_release: {
-                    name: commands.toggleSwitch,
-                    arg: 'terrarium_light',
-                },
                 hold: {
                     name: commands.globalOff,
                 },

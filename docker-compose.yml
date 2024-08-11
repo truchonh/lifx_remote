@@ -9,3 +9,4 @@ services:
       - ./config/config.json:/lib/lifx_control/config/config.json
     ports:
       - "9999:80"
+    restart: unless-stopped

@@ -66,7 +66,7 @@ async function setNightLights() {
         power: 'ON'
     })
     await mqttApi.setColor('bathroom', {
-        color: { brightness: 0.01, kelvin: 1500 },
+        color: { brightness: 0.01, kelvin: 1000 },
         duration: 250,
         power: 'ON'
     })

@@ -120,7 +120,7 @@ class mqttApi {
 
     static async _getClient() {
         if (_client === null) {
-            _client = await mqtt.connectAsync('mqtt://server.lan:1883')
+            _client = await mqtt.connectAsync('mqtt://192.168.0.44:1883')
             _client.on('error', (err) => simpleLogger.error('MQTT client error:', err))
             _client.on('close', () => simpleLogger.log('MQTT client closed.'))
             _client.on('message', (topic, message) => this._onMessage(topic, message))
